@@ -1,4 +1,4 @@
-QT       += core gui network
+QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,12 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    q_tcpserver.cpp \
-    startwindow.cpp
+    startwindow.cpp \
+    xmy_database.cpp \
+    xmy_tcpserver.cpp
 
 HEADERS += \
-    q_tcpserver.h \
-    startwindow.h
+    startwindow.h \
+    xmy_database.h \
+    xmy_tcpserver.h
 
 FORMS += \
     startwindow.ui

@@ -3,8 +3,9 @@
 #define DEBUG_MODE true
 
 #include <QMainWindow>
-#include <q_tcpserver.h>
+#include <xmy_tcpserver.h>
 #include <QDebug>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class StartWindow; }
@@ -25,6 +26,10 @@ private slots:
     void on_pushButton_clicked();
 
     void on_actionRefresh_IP_triggered();
+
+    void slot_receive_message(QString msg);
+
+    void slot_show_log(QString msg);
 
 private:
     Ui::StartWindow *ui;
