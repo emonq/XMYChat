@@ -2,7 +2,9 @@
 #define LOGINWINDOW_H
 
 #include <QMainWindow>
+
 #include "loginsession.h"
+#include "settingdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class LoginWindow; }
@@ -21,9 +23,19 @@ private slots:
 
     void on_pushButton_login_clicked();
 
+    void on_actionServer_Settings_triggered();
+
+    void slot_login_callback(int result);
+    void slot_register_callback(int result);
+    void slot_general_callback(int result);
+
+    void on_pushButton_register_clicked();
 
 private:
     Ui::LoginWindow *ui;
-    loginsession session;
+    loginsession *session;
+    xmyUserSettings *settings;
+    bool check_form();
+    void set_widgets(bool status);
 };
 #endif // LOGINWINDOW_H

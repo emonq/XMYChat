@@ -1,42 +1,41 @@
 #ifndef LOGINSESSION_H
 #define LOGINSESSION_H
 
-#define SERVER_ADDR QString("127.0.0.1")
-#define SERVER_PORT 42000
-
-#define TYPE_LOGIN 0
-#define TYPE_REGISTER 1
-
-#define LOGIN_STATUS int
-#define LOGIN_SUCCESS 0
-#define LOGIN_INFO_ERROR 1
-#define LOGIN_CONNECTION_ERROR 2
-#define LOGIN_USER_NOT_FOUND 3
-#define LOGIN_USER_BANNED 4
-
-
 #include <QObject>
 #include <QTcpSocket>
-#include <QJsonObject>
-#include <QJsonDocument>
+
+#include "../XMYChatShare/xmy_basic.h"
+#include "../XMYChatShare/xmy_tcpsocket.h"
+#include "xmyusersettings.h"
 
 class loginsession : public QObject
 {
     Q_OBJECT
 public:
     explicit loginsession(QObject *parent = nullptr);
-    LOGIN_STATUS login(QString username, QString password);
-
+    ~loginsession();
+    void user_login(QString username, QString password);
+    void user_register(QString username, QString password);
+    void establish_connect();
 
 signals:
+    void connection_error();
+    void login_return(int result);
+    void register_return(int result);
+    void general_return(int result);
+
 
 private:
-    QTcpSocket *socket;
-    void establish_connect();
+    XMY_tcpsocket *socket;
+    xmyUserSettings *settings;
+
+
+
 private slots:
     void slot_connected();
-    void slot_receive_message();
     void slot_disconnected();
+    void callback_process(QJsonObject data);
+    void slot_connection_error();
 };
 
 #endif // LOGINSESSION_H

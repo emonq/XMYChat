@@ -9,12 +9,15 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ../XMYChatShare/xmy_tcpsocket.cpp \
     main.cpp \
     startwindow.cpp \
     xmy_database.cpp \
     xmy_tcpserver.cpp
 
 HEADERS += \
+    ../XMYChatShare/xmy_basic.h \
+    ../XMYChatShare/xmy_tcpsocket.h \
     startwindow.h \
     xmy_database.h \
     xmy_tcpserver.h

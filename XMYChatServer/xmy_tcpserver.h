@@ -5,43 +5,40 @@
 #include <QTcpServer>
 #include <QHostInfo>
 #include <QTcpSocket>
-#include <QJsonObject>
-#include <QJsonDocument>
+#include <QCryptographicHash>
 
+#include "xmy_database.h"
+#include "../XMYChatShare/xmy_basic.h"
+#include "../XMYChatShare/xmy_tcpsocket.h"
 
-#define TYPE_LOGIN 0
-#define TYPE_REGISTER 1
-
-#define LOGIN_STATUS int
-#define LOGIN_SUCCESS 0
-#define LOGIN_INFO_ERROR 1
-#define LOGIN_CONNECTION_ERROR 2
-#define LOGIN_USER_NOT_FOUND 3
-#define LOGIN_USER_BANNED 4
-
-class Q_tcpserver : public QTcpServer
+class XMY_tcpserver : public QTcpServer
 {
     Q_OBJECT
 public:
-    explicit Q_tcpserver(QObject *parent=Q_NULLPTR);
+    explicit XMY_tcpserver(QObject *parent=Q_NULLPTR);
     QList<QHostAddress> get_addr();
+    bool start_server(QHostAddress ip, int port);
     void stop_server();
-    ~Q_tcpserver();
+    ~XMY_tcpserver();
+    virtual void incomingConnection(qintptr socketDescriptor);
 
 signals:
-    void receive_message(QString msg);
+    void receive_message(QString msg_from, QString msg);
     void new_log(QString msg);
 
 private:
+    XMY_database* db;
+    QMap<qintptr,XMY_tcpsocket*> clients;
+//    QList<QTcpSocket*> clients;
 
-    QList<QTcpSocket*> clients;
+    int user_authentication(QJsonObject login_info);
+    int user_create(QJsonObject user_info);
 
-    int authentication(QJsonObject login_info);
 
 
 private slots:
-    void establish_connection();
-    void slot_read_message();
+    void slot_disconnected();
+    void request_process(QJsonObject req);
 };
 
 #endif // XMY_TCPSERVER_H

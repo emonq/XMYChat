@@ -9,19 +9,29 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ../XMYChatShare/xmy_tcpsocket.cpp \
+    chatwindow.cpp \
     loginsession.cpp \
     main.cpp \
-    loginwindow.cpp
+    loginwindow.cpp \
+    settingdialog.cpp \
+    xmyusersettings.cpp
 
 HEADERS += \
+    ../XMYChatShare/xmy_basic.h \
+    ../XMYChatShare/xmy_tcpsocket.h \
+    chatwindow.h \
     loginsession.h \
-    loginwindow.h
+    loginwindow.h \
+    settingdialog.h \
+    xmyusersettings.h
 
 FORMS += \
-    loginwindow.ui
+    chatwindow.ui \
+    loginwindow.ui \
+    settingdialog.ui
 
 TRANSLATIONS += \
-    MyTelegram_zh_CN.ts
 CONFIG += lrelease
 CONFIG += embed_translations
 
@@ -29,3 +39,5 @@ CONFIG += embed_translations
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
