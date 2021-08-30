@@ -1,13 +1,14 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
-
+#include"chat.h"
+#include"user.h"
 LoginWindow::LoginWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::LoginWindow)
-    , session(new loginsession)
 {
     ui->setupUi(this);
     ui->pushButton_login->setShortcut(Qt::Key_Enter);
+    session=new loginsession;
     connect(session,&loginsession::login_return,this,&LoginWindow::slot_login_callback);
     connect(session,&loginsession::register_return,this,&LoginWindow::slot_register_callback);
     connect(session,&loginsession::general_return,this,&LoginWindow::slot_general_callback);
@@ -17,15 +18,12 @@ LoginWindow::LoginWindow(QWidget *parent)
     connect(ui->lineEdit_username,&QLineEdit::returnPressed,this,[=](){
         ui->lineEdit_password->setFocus();
     });
-    QVariant ip, port;
-    if(!settings->get_value("Server ip", ip)) settings->set_value("Server ip","127.0.0.1");
-    if(!settings->get_value("Server port", port)) settings->set_value("Server port",42000);
-
 }
 
 LoginWindow::~LoginWindow()
 {
     delete ui;
+    delete session;
     delete settings;
 }
 
@@ -53,8 +51,8 @@ void LoginWindow::on_pushButton_login_clicked()
 void LoginWindow::on_actionServer_Settings_triggered()
 {
     QVariant ip, port;
-    if(!settings->get_value("Server ip", ip)) ip="127.0.0.1";
-    if(!settings->get_value("Server port", port)) port=42000;
+    settings->get_value("Server ip", ip);
+    settings->get_value("Server port", port);
     settingDialog *settingwindow=new settingDialog(this, ip.toString(), port.toInt());
     int res=settingwindow->exec();
     if(res==1) {
@@ -62,7 +60,6 @@ void LoginWindow::on_actionServer_Settings_triggered()
         settings->set_value("Server port", settingwindow->get_port());
         session->establish_connect();
     }
-    settingwindow->deleteLater();
 }
 
 void LoginWindow::slot_login_callback(int result)
@@ -70,16 +67,17 @@ void LoginWindow::slot_login_callback(int result)
     if(result==LOGIN_SUCCESS) {
         ui->label_warnMessage->setText("Login successful");
         ui->label_warnMessage->setStyleSheet("color:green;");
-        ChatWindow* chatwindow=new ChatWindow(nullptr,session);
-        chatwindow->show();
+        User *w;
+        w = new User;
+        w->show();
         close();
+
     }
     else {
         switch (result) {
         case LOGIN_INFO_ERROR: ui->label_warnMessage->setText("Username or password error!");break;
         case LOGIN_USER_NOT_FOUND: ui->label_warnMessage->setText("User not found!");break;
         case LOGIN_USER_BANNED: ui->label_warnMessage->setText("You are banned!");break;
-        case LOGIN_USER_WAITING_VERIFICATION: verify(); break;
         default: ui->label_warnMessage->setText(QString("Unknown error %1").arg(result));
         }
         ui->label_warnMessage->setStyleSheet("color:red;");
@@ -95,13 +93,9 @@ void LoginWindow::slot_register_callback(int result)
     }
     else {
         switch (result) {
-        case REGISTER_WAITING_VERIFICATION: {
-            verify();
-            break;
-        }
-        case REGISTER_USER_EXISTED: ui->label_warnMessage->setText("User existed!");break;
-        case REGISTER_INFO_ERROR: ui->label_warnMessage->setText("Username or password illegal!");break;
-        default: ui->label_warnMessage->setText(QString("Unknown error %1").arg(result));
+            case REGISTER_USER_EXISTED: ui->label_warnMessage->setText("User existed!");break;
+            case REGISTER_INFO_ERROR: ui->label_warnMessage->setText("Username or password illegal!");break;
+            default: ui->label_warnMessage->setText(QString("Unknown error %1").arg(result));
         }
         ui->label_warnMessage->setStyleSheet("color:red;");
     }
@@ -148,15 +142,6 @@ bool LoginWindow::check_form()
         }
     }
     return true;
-}
-
-void LoginWindow::verify()
-{
-    VerificationDialog* vdialog=new VerificationDialog(this);
-    if(vdialog->exec()==1) {
-        session->email_verify(vdialog->get_code());
-    }
-    vdialog->deleteLater();
 }
 
 void LoginWindow::set_widgets(bool status)

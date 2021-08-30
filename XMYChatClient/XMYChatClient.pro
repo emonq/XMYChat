@@ -10,29 +10,35 @@ CONFIG += c++11
 
 SOURCES += \
     ../XMYChatShare/xmy_tcpsocket.cpp \
+    addfriend.cpp \
+    chat.cpp \
     chatwindow.cpp \
     loginsession.cpp \
     main.cpp \
     loginwindow.cpp \
     settingdialog.cpp \
-    verificationdialog.cpp \
+    user.cpp \
     xmyusersettings.cpp
 
 HEADERS += \
     ../XMYChatShare/xmy_basic.h \
     ../XMYChatShare/xmy_tcpsocket.h \
+    addfriend.h \
+    chat.h \
     chatwindow.h \
     loginsession.h \
     loginwindow.h \
     settingdialog.h \
-    verificationdialog.h \
+    user.h \
     xmyusersettings.h
 
 FORMS += \
+    addfriend.ui \
+    chat.ui \
     chatwindow.ui \
     loginwindow.ui \
     settingdialog.ui \
-    verificationdialog.ui
+    user.ui
 
 TRANSLATIONS += \
 CONFIG += lrelease
@@ -44,3 +50,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+
+RESOURCES += \
+    images.qrc \

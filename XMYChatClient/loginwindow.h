@@ -5,8 +5,6 @@
 
 #include "loginsession.h"
 #include "settingdialog.h"
-#include "chatwindow.h"
-#include "verificationdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class LoginWindow; }
@@ -38,7 +36,6 @@ private:
     loginsession *session;
     xmyUserSettings *settings;
     bool check_form();
-    void verify();
     void set_widgets(bool status);
 };
 #endif // LOGINWINDOW_H
