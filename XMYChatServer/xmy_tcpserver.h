@@ -28,17 +28,22 @@ signals:
 
 private:
     XMY_database* db;
-    QMap<qintptr,XMY_tcpsocket*> clients;
-//    QList<QTcpSocket*> clients;
+    QHash<qintptr,XMY_tcpsocket*> clients;
+    QHash<QString, qintptr> loginusers;
+//    QHash<QString, QString> usertokens;
 
-    int user_authentication(QJsonObject login_info);
-    int user_create(QJsonObject user_info);
-
+    void user_authentication(QJsonObject login_info, QJsonObject& ret_data, qintptr socketDescriptor);
+    void user_create(QJsonObject user_info, QJsonObject& ret_data);
+    bool send_message(QString from_username, QString to_username, QString msg);
+    bool email_verify(QString email, int code, QJsonObject& ret_data);
+    void send_verification_code(QString email);
+    bool check_valid_email(QString email);
 
 
 private slots:
     void slot_disconnected();
     void request_process(QJsonObject req);
+    void handleEndOfRequest(QNetworkReply*);
 };
 
 #endif // XMY_TCPSERVER_H

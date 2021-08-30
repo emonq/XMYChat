@@ -15,6 +15,7 @@ SOURCES += \
     main.cpp \
     loginwindow.cpp \
     settingdialog.cpp \
+    verificationdialog.cpp \
     xmyusersettings.cpp
 
 HEADERS += \
@@ -24,12 +25,14 @@ HEADERS += \
     loginsession.h \
     loginwindow.h \
     settingdialog.h \
+    verificationdialog.h \
     xmyusersettings.h
 
 FORMS += \
     chatwindow.ui \
     loginwindow.ui \
-    settingdialog.ui
+    settingdialog.ui \
+    verificationdialog.ui
 
 TRANSLATIONS += \
 CONFIG += lrelease

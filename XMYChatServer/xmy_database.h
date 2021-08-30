@@ -19,8 +19,9 @@ public:
     bool connect_db();
     void disconnect_db();
     bool init_db();
-    int get_user_by_username(QString username, QMap<QString,QVariant>&info, QString fields);
-    int new_user(QString username, QString password);
+    int get_user_by_email(QString email, QMap<QString,QVariant>&info, QString fields);
+    int new_user(QString email, QString password);
+    bool set_user_by_email(QString email, QString fields, QVariant value);
 
 signals:
     void new_log(QString msg);

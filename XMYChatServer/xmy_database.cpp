@@ -10,7 +10,7 @@ bool XMY_database::connect_db()
     emit new_log("Connecting database");
     db.setDatabaseName(DB_FILE);
     if (db.open()) {
-        if(QSqlQuery("SELECT u_username,u_email,u_password,is_banned FROM users").exec()) {
+        if(QSqlQuery("SELECT u_username,u_email,u_password,is_banned,is_waiting_verification,u_verification_code FROM users").exec()) {
             emit new_log("Database connected.");
             return true;
         }
@@ -35,7 +35,7 @@ bool XMY_database::init_db()
 {
     QSqlQuery query;
     query.exec("DROP TABLE users");
-    query.prepare("CREATE TABLE users(u_username TEXT PRIMARY KEY, u_password TEXT NOT NULL, u_email TEXT, is_banned INT)");
+    query.prepare("CREATE TABLE users(u_email TEXT PRIMARY KEY, u_password TEXT NOT NULL, u_username TEXT, is_banned INT, is_waiting_verification INT NOT NULL, u_verification_code INT)");
     if(!query.exec()) {
         emit new_log(query.lastError().text());
         return false;
@@ -44,11 +44,12 @@ bool XMY_database::init_db()
     return true;
 }
 
-int XMY_database::get_user_by_username(QString username, QMap<QString,QVariant>&info, QString fields)
+int XMY_database::get_user_by_email(QString email, QMap<QString,QVariant>&info, QString fields)
 {
     QStringList fieldList=fields.split(',');
     QSqlQuery query;
-    query.prepare(QString("SELECT %1 FROM users WHERE u_username='%2'").arg(fields,username));
+    query.prepare(QString("SELECT %1 FROM users WHERE u_email=:email").arg(fields));
+    query.bindValue(":email",email);
     if (!query.exec()) {
         emit new_log(query.lastError().text());
         return DB_ERROR;
@@ -61,15 +62,30 @@ int XMY_database::get_user_by_username(QString username, QMap<QString,QVariant>&
     return SUCCESS;
 }
 
-int XMY_database::new_user(QString username, QString password)
+int XMY_database::new_user(QString email, QString password)
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO users(u_username,u_password) VALUES(:username,:password)");
-    query.bindValue(":username",username);
+    query.prepare("INSERT INTO users(u_email,u_password,is_waiting_verification) VALUES(:email,:password,1)");
+    query.bindValue(":email",email);
     query.bindValue(":password",password);
     if(!query.exec()) {
         emit new_log(query.lastError().text());
         return false;
     }
     return true;
+}
+
+bool XMY_database::set_user_by_email(QString email, QString field, QVariant value)
+{
+    QSqlQuery query;
+    query.prepare(QString("UPDATE users SET %1=:value WHERE u_email=:email").arg(field));
+    query.bindValue(":email",email);
+    query.bindValue(":value",value);
+    if(query.exec()) {
+        return true;
+    }
+    else {
+        emit new_log(query.lastError().text());
+        return false;
+    }
 }
