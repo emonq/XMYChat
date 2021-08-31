@@ -70,8 +70,8 @@ void LoginWindow::slot_login_callback(int result)
     if(result==LOGIN_SUCCESS) {
         ui->label_warnMessage->setText("Login successful");
         ui->label_warnMessage->setStyleSheet("color:green;");
-        ChatWindow* chatwindow=new ChatWindow(nullptr,session);
-        chatwindow->show();
+        UserMainWindow* mainwindow=new UserMainWindow(nullptr,session);
+        mainwindow->show();
         close();
     }
     else {

@@ -21,7 +21,6 @@ QList<QHostAddress> XMY_tcpserver::get_addr()
 
 bool XMY_tcpserver::start_server(QHostAddress ip, int port)
 {
-//    send_verification_code("emonq@outlook.com");
     bool listen_status=listen(ip,port);
     bool connect_status=db->connect_db();
     if(listen_status && connect_status) {
@@ -153,7 +152,7 @@ void XMY_tcpserver::send_verification_code(QString email)
     QUrlQuery params;
     params.addQueryItem("from", "xmychat@send.emonq.com");
     params.addQueryItem("to", email);
-    params.addQueryItem("html", QString("<h1>Your verification code is:</h1><p>%1</p>").arg(code));
+    params.addQueryItem("html", QString("<p>Your verification code is:</p><h1>%1</h1>").arg(code));
     params.addQueryItem("subject", "XMYChat email verification");
     networkmanager->post(send_request, params.toString().toUtf8());
     emit new_log(QString("Sent verification code %1 to %2").arg(code).arg(email));
@@ -163,6 +162,32 @@ bool XMY_tcpserver::check_valid_email(QString email)
 {
     QRegularExpression re("[a-zA-z0-9]+\\@[a-zA-z0-9]+\\.[a-zA-z0-9]+");
     return re.match(email).hasMatch();
+}
+
+bool XMY_tcpserver::fetch_friend_list(QString email, QJsonObject& ret)
+{
+    QMap<QString,QVariant> info;
+    if(db->get_user_by_email(email, info, "u_friends")!=SUCCESS) {
+        return false;
+    }
+    QStringList friends=info["u_friends"].toString().split(";", Qt::SkipEmptyParts);
+    ret.insert("count",friends.count());
+    QJsonArray friends_array;
+    for(auto &i:friends) {
+        QJsonObject tmp;
+        QMap<QString,QVariant> friend_info;
+        db->get_user_by_email(i,friend_info,"u_username");
+        tmp.insert("email",i);
+        tmp.insert("username",friend_info["u_username"].toString());
+        QString avatar_file=".avatar\\"+XMY_Utilities::emailtomd5(i)+".png";
+        if(QDir(avatar_file).exists()){
+            tmp.insert("avatarmd5",XMY_Utilities::pixmaptomd5(QPixmap(avatar_file)));
+        }
+        else tmp.insert("avatarmd5",XMY_Utilities::pixmaptomd5(QPixmap(".avatar\\default.png")));
+        friends_array.append(tmp);
+    }
+    ret.insert("list",friends_array);
+    return true;
 }
 
 void XMY_tcpserver::request_process(QJsonObject req)
@@ -193,6 +218,45 @@ void XMY_tcpserver::request_process(QJsonObject req)
     case TYPE_VERIFY: {
         ret.insert("type",TYPE_REGISTER);
         email_verify(req.value("email").toString(),req.value("code").toInt(),ret);
+        break;
+    }
+    case TYPE_INFO_MODIFY: {
+        QString email=req.value("email").toString();
+        for(auto &i:req.keys()) {
+            if(i=="avatar") XMY_Utilities::save_pic_from_base64(req.value(i).toString(),".avatar\\"+XMY_Utilities::emailtomd5(email)+".png");
+            else if(i=="email") {
+                if(check_valid_email(req.value(i).toString()))
+                    db->set_user_by_email(email,"u_email",req.value(i));
+            }
+            else if(i=="username") db->set_user_by_email(email,"u_username",req.value(i));
+        }
+        break;
+    }
+    case TYPE_GET_USER_INFO: {
+        QMap<QString,QVariant> info;
+        db->get_user_by_email(req.value("email").toString(),info,"u_username");;
+        ret.insert("type",TYPE_GET_USER_INFO);
+        ret.insert("username",info.value("u_username").toString());
+        break;
+    }
+    case TYPE_GET_AVATAR: {
+        XMY_Utilities::checkDir(".avatar");
+        QString filename=".avatar\\"+XMY_Utilities::emailtomd5(req.value("email").toString())+".png";
+        if(!QFile(filename).exists()) filename=".avatar\\default.png";
+        ret.insert("type",TYPE_GET_AVATAR);
+        ret.insert("email",req.value("email").toString());
+        if(XMY_Utilities::pixmaptomd5(QPixmap(filename))==req.value("md5").toString()) {
+            ret.insert("result",GET_AVATAR_NOCHANGE);
+        }
+        else {
+            ret.insert("result",GET_AVATAR_OK);
+            ret.insert("avatar",XMY_Utilities::get_pic_base64(filename));
+        }
+        break;
+    }
+    case TYPE_FETCH_FRIEND_LIST: {
+        ret.insert("type",TYPE_FETCH_FRIEND_LIST);
+        fetch_friend_list(req.value("email").toString(),ret);
         break;
     }
     default: {

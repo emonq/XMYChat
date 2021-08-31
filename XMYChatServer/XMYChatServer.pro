@@ -10,6 +10,7 @@ CONFIG += c++11
 
 SOURCES += \
     ../XMYChatShare/xmy_tcpsocket.cpp \
+    ../XMYChatShare/xmy_utilities.cpp \
     main.cpp \
     startwindow.cpp \
     xmy_database.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
 HEADERS += \
     ../XMYChatShare/xmy_basic.h \
     ../XMYChatShare/xmy_tcpsocket.h \
+    ../XMYChatShare/xmy_utilities.h \
     startwindow.h \
     xmy_database.h \
     xmy_tcpserver.h

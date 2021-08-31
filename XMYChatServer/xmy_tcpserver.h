@@ -10,6 +10,7 @@
 #include "xmy_database.h"
 #include "../XMYChatShare/xmy_basic.h"
 #include "../XMYChatShare/xmy_tcpsocket.h"
+#include "../XMYChatShare/xmy_utilities.h"
 
 class XMY_tcpserver : public QTcpServer
 {
@@ -30,7 +31,6 @@ private:
     XMY_database* db;
     QHash<qintptr,XMY_tcpsocket*> clients;
     QHash<QString, qintptr> loginusers;
-//    QHash<QString, QString> usertokens;
 
     void user_authentication(QJsonObject login_info, QJsonObject& ret_data, qintptr socketDescriptor);
     void user_create(QJsonObject user_info, QJsonObject& ret_data);
@@ -38,6 +38,8 @@ private:
     bool email_verify(QString email, int code, QJsonObject& ret_data);
     void send_verification_code(QString email);
     bool check_valid_email(QString email);
+    bool fetch_friend_list(QString email, QJsonObject& ret);
+    bool update_friend_list(QString email, QString f_email, friendOperations operation);
 
 
 private slots:

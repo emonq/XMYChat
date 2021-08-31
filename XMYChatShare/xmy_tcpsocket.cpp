@@ -15,12 +15,16 @@ XMY_tcpsocket::XMY_tcpsocket(qintptr socketDescriptor)
 void XMY_tcpsocket::send_json(QJsonObject data)
 {
     QByteArray buf=QJsonDocument(data).toJson(QJsonDocument::Compact);
-    write(buf);
+    writeData(buf,buf.size());
 }
 
 void XMY_tcpsocket::slot_ready_read()
 {
     QByteArray buf=readAll();
+    while(QJsonDocument::fromJson(buf).isNull()) {
+        if(!waitForReadyRead(200)) break;
+        buf.append(readAll());
+    }
     QJsonObject data=QJsonDocument::fromJson(buf).object();
     emit receive_json(data);
 }

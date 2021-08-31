@@ -1,4 +1,4 @@
-QT       += core gui network
+QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,28 +10,35 @@ CONFIG += c++11
 
 SOURCES += \
     ../XMYChatShare/xmy_tcpsocket.cpp \
-    chatwindow.cpp \
+    ../XMYChatShare/xmy_utilities.cpp \
+    clientdatabase.cpp \
     loginsession.cpp \
     main.cpp \
     loginwindow.cpp \
     settingdialog.cpp \
+    userinfodialog.cpp \
+    usermainwindow.cpp \
     verificationdialog.cpp \
     xmyusersettings.cpp
 
 HEADERS += \
     ../XMYChatShare/xmy_basic.h \
     ../XMYChatShare/xmy_tcpsocket.h \
-    chatwindow.h \
+    ../XMYChatShare/xmy_utilities.h \
+    clientdatabase.h \
     loginsession.h \
     loginwindow.h \
     settingdialog.h \
+    userinfodialog.h \
+    usermainwindow.h \
     verificationdialog.h \
     xmyusersettings.h
 
 FORMS += \
-    chatwindow.ui \
     loginwindow.ui \
     settingdialog.ui \
+    userinfodialog.ui \
+    usermainwindow.ui \
     verificationdialog.ui
 
 TRANSLATIONS += \

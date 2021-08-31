@@ -10,7 +10,7 @@ bool XMY_database::connect_db()
     emit new_log("Connecting database");
     db.setDatabaseName(DB_FILE);
     if (db.open()) {
-        if(QSqlQuery("SELECT u_username,u_email,u_password,is_banned,is_waiting_verification,u_verification_code FROM users").exec()) {
+        if(QSqlQuery("SELECT u_username,u_email,u_password,is_banned,is_waiting_verification,u_verification_code,u_friends FROM users").exec()) {
             emit new_log("Database connected.");
             return true;
         }
@@ -35,7 +35,8 @@ bool XMY_database::init_db()
 {
     QSqlQuery query;
     query.exec("DROP TABLE users");
-    query.prepare("CREATE TABLE users(u_email TEXT PRIMARY KEY, u_password TEXT NOT NULL, u_username TEXT, is_banned INT, is_waiting_verification INT NOT NULL, u_verification_code INT)");
+    query.prepare("CREATE TABLE users(u_email TEXT PRIMARY KEY, u_password TEXT NOT NULL, u_username TEXT, is_banned INT DEFAULT 0, is_waiting_verification INT NOT NULL DEFAULT 1, u_verification_code INT, u_friends TEXT)");
+//    query.bindValue(":avatar",default_avatar);
     if(!query.exec()) {
         emit new_log(query.lastError().text());
         return false;

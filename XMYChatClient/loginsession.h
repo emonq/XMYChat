@@ -6,12 +6,16 @@
 
 #include "../XMYChatShare/xmy_basic.h"
 #include "../XMYChatShare/xmy_tcpsocket.h"
+#include "../XMYChatShare/xmy_utilities.h"
 #include "xmyusersettings.h"
 
 class loginsession : public QObject
 {
     Q_OBJECT
 public:
+    QHash<QString, QString> info;
+    QList<userStruct> friends;
+
     explicit loginsession(QObject *parent = nullptr);
     ~loginsession();
     void user_login(QString email, QString password);
@@ -20,6 +24,10 @@ public:
     void logout();
     void send_message(QString to_email, QString msg);
     void email_verify(int code);
+    void user_info_modify(QJsonObject data);
+    void get_user_info(QString email=QString());
+    void fetch_friend_list();
+    void get_avatar(QString email=QString());
 
 signals:
     void connection_error();
@@ -28,12 +36,13 @@ signals:
     void general_return(int result);
     void sig_logout();
     void sig_receive_message(QString from_username, QString msg);
+    void info_refreshed();
+    void friend_list_refreshed();
+    void avatar_got(QString email);
 
 private:
     XMY_tcpsocket *socket;
     xmyUserSettings *settings;
-    QString token;
-    QString email;
 
 private slots:
     void slot_connected();

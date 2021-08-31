@@ -5,7 +5,7 @@
 
 #include "loginsession.h"
 #include "settingdialog.h"
-#include "chatwindow.h"
+#include "usermainwindow.h"
 #include "verificationdialog.h"
 
 QT_BEGIN_NAMESPACE
