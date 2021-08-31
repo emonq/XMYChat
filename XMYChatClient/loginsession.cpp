@@ -5,7 +5,6 @@ loginsession::loginsession(QObject *parent) : QObject(parent)
     socket=new XMY_tcpsocket;
     settings=new xmyUserSettings;
     connect(this,&loginsession::connection_error,this,&loginsession::slot_connection_error);
-
     establish_connect();
 }
 
@@ -115,12 +114,13 @@ void loginsession::fetch_friend_list()
     socket->send_json(data);
 }
 
-void loginsession::get_avatar(QString email)
+void loginsession::get_avatar(QString email, QString md5)
 {
     if(email.isEmpty()) email=info["email"];
     QString filename=".cache\\"+XMY_Utilities::emailtomd5(email)+".png";
     QPixmap pic(filename);
     QString picmd5=XMY_Utilities::pixmaptomd5(pic);
+    if(picmd5==md5) return;
     QJsonObject data;
     data.insert("type",TYPE_GET_AVATAR);
     data.insert("email",email);
@@ -162,6 +162,7 @@ void loginsession::callback_process(QJsonObject data)
         qDebug()<<"Fetched "<<data.value("count").toInt()<<" friends";
         for(auto i:data.value("list").toArray()) {
             friends.append(userStruct(i.toObject().value("username").toString(),i.toObject().value("email").toString(),i.toObject().value("avatarmd5").toString()));
+            get_avatar(i.toObject().value("email").toString(),i.toObject().value("avatarmd5").toString());
         }
         emit friend_list_refreshed();
         break;

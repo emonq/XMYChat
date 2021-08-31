@@ -3,6 +3,7 @@
 XMY_tcpsocket::XMY_tcpsocket(QObject *parent) : QTcpSocket(parent)
 {
     connect(this,&XMY_tcpsocket::readyRead,this,&XMY_tcpsocket::slot_ready_read);
+    setSocketOption(QAbstractSocket::LowDelayOption,1);
 }
 
 XMY_tcpsocket::XMY_tcpsocket(qintptr socketDescriptor)
@@ -14,17 +15,28 @@ XMY_tcpsocket::XMY_tcpsocket(qintptr socketDescriptor)
 
 void XMY_tcpsocket::send_json(QJsonObject data)
 {
-    QByteArray buf=QJsonDocument(data).toJson(QJsonDocument::Compact);
-    writeData(buf,buf.size());
+    QByteArray rawdata=QJsonDocument(data).toJson(QJsonDocument::Compact);
+    QByteArray buf;
+    write(rawdata);
 }
 
 void XMY_tcpsocket::slot_ready_read()
 {
-    QByteArray buf=readAll();
-    while(QJsonDocument::fromJson(buf).isNull()) {
-        if(!waitForReadyRead(200)) break;
-        buf.append(readAll());
+    QByteArray rawdata=readAll();
+    while(QJsonDocument::fromJson(rawdata).isNull()) {
+        if(!waitForReadyRead(10)) break;
+        rawdata.append(readAll());
     }
-    QJsonObject data=QJsonDocument::fromJson(buf).object();
-    emit receive_json(data);
+    qDebug()<<rawdata;
+    if(QJsonDocument::fromJson(rawdata).isNull()){
+        qsizetype pos;
+        QByteArray data;
+        while((pos=rawdata.lastIndexOf("}{"))!=-1) {
+            data=rawdata.sliced(pos+1);
+            qDebug()<<"splited "<<data;
+            rawdata.truncate(pos+1);
+            emit receive_json(QJsonDocument::fromJson(data).object());
+        }
+    }
+    emit receive_json(QJsonDocument::fromJson(rawdata).object());
 }

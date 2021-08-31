@@ -20,6 +20,7 @@ signals:
 
 private slots:
     void slot_ready_read();
+
 };
 
 #endif // XMY_TCPSOCKET_H

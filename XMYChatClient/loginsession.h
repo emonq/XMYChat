@@ -15,6 +15,7 @@ class loginsession : public QObject
 public:
     QHash<QString, QString> info;
     QList<userStruct> friends;
+    QHash<QString, QListWidgetItem*> friend_item;
 
     explicit loginsession(QObject *parent = nullptr);
     ~loginsession();
@@ -27,7 +28,7 @@ public:
     void user_info_modify(QJsonObject data);
     void get_user_info(QString email=QString());
     void fetch_friend_list();
-    void get_avatar(QString email=QString());
+    void get_avatar(QString email=QString(), QString md5=QString());
 
 signals:
     void connection_error();

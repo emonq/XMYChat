@@ -45,7 +45,7 @@ void LoginWindow::on_pushButton_login_clicked()
         ui->label_warnMessage->setStyleSheet("color:black;");
         ui->label_warnMessage->setText("Logging in...");
         set_widgets(false);
-        session->user_login(ui->lineEdit_username->text(), ui->lineEdit_password->text());
+        session->user_login(ui->lineEdit_username->text().trimmed().toLower(), ui->lineEdit_password->text());
     }
 }
 
@@ -130,7 +130,7 @@ void LoginWindow::on_pushButton_register_clicked()
     if(check_form()) {
         ui->label_warnMessage->setStyleSheet("color:black;");
         ui->label_warnMessage->setText("Registering new user...");
-        session->user_register(ui->lineEdit_username->text(), ui->lineEdit_password->text());
+        session->user_register(ui->lineEdit_username->text().trimmed().toLower(), ui->lineEdit_password->text());
     }
 }
 

@@ -73,6 +73,13 @@
        </layout>
       </item>
       <item>
+       <widget class="QLabel" name="label_friends">
+        <property name="text">
+         <string>Loading friends:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QListWidget" name="listWidget_friends"/>
       </item>
       <item>

@@ -10,6 +10,7 @@ UserMainWindow::UserMainWindow(QWidget *parent, loginsession* session) :
     connect(session,&loginsession::sig_logout,this,&UserMainWindow::slot_logout);
     connect(session,&loginsession::sig_receive_message,this,&UserMainWindow::slot_receive_message);
     ui->label_avatar->setScaledContents(true);
+    ui->label_avatar_friend->setScaledContents(true);
     connect(session,&loginsession::info_refreshed,this,&UserMainWindow::slot_info_refresh);
     connect(session,&loginsession::avatar_got,this,&UserMainWindow::slot_avatar_got);
     connect(session,&loginsession::friend_list_refreshed,this,&UserMainWindow::slot_friend_list_refreshed);
@@ -54,15 +55,21 @@ void UserMainWindow::slot_friend_list_refreshed()
         QListWidgetItem *item=new QListWidgetItem(ui->listWidget_friends);
         item->setIcon(QIcon(XMY_Utilities::get_avatar_filename(".cache\\",i.email)));
         item->setText(i.username+'\n'+i.email);
-        qDebug()<<i.username+'\n'+i.email;
+        session->friend_item[i.email]=item;
         ui->listWidget_friends->addItem(item);
     }
+    ui->label_friends->setText(QString("%1 friends:").arg(session->friends.count()));
 }
 
 void UserMainWindow::slot_avatar_got(QString email)
 {
+    QString filename=XMY_Utilities::get_avatar_filename(".cache\\",email);
+    QPixmap pic(filename);
     if(email==session->info.value("email")) {
-        fill_user_info();
+        ui->label_avatar->setPixmap(pic);
+    }
+    else {
+        session->friend_item[email]->setIcon(pic);
     }
 }
 
@@ -110,5 +117,7 @@ void UserMainWindow::on_listWidget_friends_itemClicked(QListWidgetItem *item)
     QStringList info=item->text().split('\n');
     ui->label_email_friend->setText(info[1]);
     ui->label_username_friend->setText(info[0]);
+    QPixmap avatar(".cache\\"+XMY_Utilities::emailtomd5(info[1])+".png");
+    ui->label_avatar_friend->setPixmap(avatar);
 }
 
