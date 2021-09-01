@@ -19,8 +19,12 @@ UserMainWindow::UserMainWindow(QWidget *parent, loginsession* session) :
         QMessageBox warning(QMessageBox::Warning,"Error","User not found",QMessageBox::Ok,this);
         warning.exec();
     });
+    connect(session,&loginsession::send_message_failed,this,[=](){
+        QMessageBox warning(QMessageBox::Warning,"Message send error","Your message is failed to send. It may because your friend is offline currently.",QMessageBox::Ok,this);
+        warning.exec();
+    });
     session->get_user_info();
-
+    ui->pushButton_send->setEnabled(false);
 //    session->fetch_friend_list();
 //    session->get_avatar();
 }
@@ -37,14 +41,24 @@ void UserMainWindow::slot_logout()
     close();
 }
 
-void UserMainWindow::slot_receive_message(QString from_email)
+void UserMainWindow::slot_receive_message(chatMessage msg)
 {
-
+    if(msg.sender==ui->label_email_friend->text()){
+        show_messages();
+    }
+    else {
+        session->friend_item.value(msg.sender)->setBackground(QColor("pink"));
+    }
 }
 
 void UserMainWindow::on_pushButton_send_clicked()
 {
-
+    QString to_email=ui->label_email_friend->text().trimmed().toLower();
+    QString msg=ui->plainTextEdit_msginput->toPlainText();
+    session->send_message(to_email,msg);
+    ui->plainTextEdit_msginput->clear();
+    ui->listWidget_messages->addItem(XMY_Utilities::get_time_string()+" - "+session->info.value("email")+"\n"+msg);
+    ui->listWidget_messages->scrollToBottom();
 }
 
 void UserMainWindow::slot_info_refresh()
@@ -58,6 +72,7 @@ void UserMainWindow::slot_friend_list_refreshed()
     ui->listWidget_friends->clear();
     for(auto &i:session->friends) {
         QListWidgetItem *item=new QListWidgetItem(ui->listWidget_friends);
+        item->setBackground(QColor("white"));
         item->setIcon(QIcon(XMY_Utilities::get_avatar_filename(".cache\\",i.email)));
         item->setText(i.username+'\n'+i.email);
         session->friend_item[i.email]=item;
@@ -135,15 +150,16 @@ void UserMainWindow::fill_user_info()
     setWindowTitle(session->info["email"]);
 }
 
-
-
 void UserMainWindow::on_listWidget_friends_itemClicked(QListWidgetItem *item)
 {
+    item->setBackground(QColor("white"));
     QStringList info=item->text().split('\n');
     ui->label_email_friend->setText(info[1]);
     ui->label_username_friend->setText(info[0]);
     QPixmap avatar(".cache\\"+XMY_Utilities::emailtomd5(info[1])+".png");
     ui->label_avatar_friend->setPixmap(avatar);
+    ui->pushButton_send->setEnabled(true);
+    show_messages();
 }
 
 
@@ -157,5 +173,19 @@ void UserMainWindow::on_pushButton_search_clicked()
         session->search_user(ui->lineEdit_usersearchinput->text());
     }
     ui->lineEdit_usersearchinput->clear();
+}
+
+void UserMainWindow::show_messages()
+{
+    QString email=ui->label_email_friend->text();
+    if(email.isEmpty()) return;
+    QList<chatMessage> msg;
+    msg=session->get_messages_by_email(email);
+    ui->listWidget_messages->clear();
+    for(auto i:msg) {
+        ui->listWidget_messages->addItem(i.time+" - "+i.sender+"\n"+i.msg);
+
+    }
+    ui->listWidget_messages->scrollToBottom();
 }
 

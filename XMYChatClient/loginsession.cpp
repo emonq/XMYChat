@@ -5,6 +5,7 @@ loginsession::loginsession(QObject *parent) : QObject(parent)
     socket=new XMY_tcpsocket;
     settings=new xmyUserSettings;
     connect(this,&loginsession::connection_error,this,&loginsession::slot_connection_error);
+    connect(socket,&XMY_tcpsocket::disconnected,this,&loginsession::sig_logout);
     establish_connect();
 }
 
@@ -80,6 +81,7 @@ void loginsession::send_message(QString to_email, QString msg)
     data.insert("to_email",to_email);
     data.insert("message",msg);
     socket->send_json(data);
+    db->append_message(to_email,msg,XMY_Utilities::get_time_string(),info.value("email"));
 }
 
 void loginsession::email_verify(int code)
@@ -155,14 +157,21 @@ void loginsession::delete_user(QString email)
     socket->send_json(data);
 }
 
+QList<chatMessage> loginsession::get_messages_by_email(QString email)
+{
+    QList<chatMessage> msg;
+    db->get_messages_by_email(email,msg);
+    return msg;
+}
+
 void loginsession::callback_process(QJsonObject data)
 {
 //    qDebug()<<data;
     switch (data.value("type").toInt()) {
     case TYPE_LOGIN: {
         if(data.value("result").toInt()==LOGIN_SUCCESS) {
-//            info["username"]=data.value("username").toString();
-//            info["avatar"]=XMY_Utilities::get_pic_base64(XMY_Utilities::get_avatar_filename(".cache\\",info["email"]));
+            info["username"]=data.value("username").toString();
+            db=new ClientDatabase(this,info.value("email"));
         }
         emit login_return(data.value("result").toInt());
         break;
@@ -172,11 +181,13 @@ void loginsession::callback_process(QJsonObject data)
         break;
     }
     case TYPE_SEND_MESSAGE: {
-        if(data.value("error")==INVALID_TOKEN) emit sig_logout();
+        if(data.value("result").toBool()==false) emit send_message_failed();
         break;
     }
     case TYPE_RECEIVE_MESSAGE: {
-        emit sig_receive_message(QString("%1 [%2]").arg(data.value("from_username").toString(),data.value("time").toString()),data.value("message").toString());
+        chatMessage msg(data.value("from_email").toString(),data.value("time").toString(),data.value("message").toString());
+        db->append_message(data.value("from_email").toString(),data.value("message").toString(),data.value("time").toString(),data.value("from_email").toString());
+        emit sig_receive_message(msg);
         break;
     }
     case TYPE_GET_USER_INFO: {
@@ -191,6 +202,7 @@ void loginsession::callback_process(QJsonObject data)
             friend_email_list.append(i.toObject().value("email").toString());
             friends.append(userStruct(i.toObject().value("username").toString(),i.toObject().value("email").toString(),i.toObject().value("avatarmd5").toString()));
             get_avatar(i.toObject().value("email").toString(),i.toObject().value("avatarmd5").toString());
+            db->add_friend(i.toObject().value("email").toString());
         }
         emit friend_list_refreshed();
         break;
@@ -235,5 +247,6 @@ void loginsession::slot_disconnected()
 {
     qDebug("disconnected");
     emit general_return(CONNECTION_ERROR);
+    emit sig_logout();
 //    delete socket;
 }

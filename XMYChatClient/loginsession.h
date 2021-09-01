@@ -8,6 +8,7 @@
 #include "../XMYChatShare/xmy_tcpsocket.h"
 #include "../XMYChatShare/xmy_utilities.h"
 #include "xmyusersettings.h"
+#include "clientdatabase.h"
 
 class loginsession : public QObject
 {
@@ -33,6 +34,7 @@ public:
     void search_user(QString email);
     void add_user(QString email);
     void delete_user(QString email);
+    QList<chatMessage> get_messages_by_email(QString email);
 
 signals:
     void connection_error();
@@ -40,15 +42,16 @@ signals:
     void register_return(int result);
     void general_return(int result);
     void sig_logout();
-    void sig_receive_message(QString from_username, QString msg);
+    void sig_receive_message(chatMessage msg);
     void info_refreshed();
     void friend_list_refreshed();
     void avatar_got(QString email);
     void user_found(userStruct user);
     void user_not_found();
-    void add_user_to_contact(QString email);
+    void send_message_failed();
 
 private:
+    ClientDatabase *db;
     XMY_tcpsocket *socket;
     xmyUserSettings *settings;
 

@@ -22,7 +22,7 @@ public:
 
 private slots:
     void slot_logout();
-    void slot_receive_message(QString);
+    void slot_receive_message(chatMessage);
     void on_pushButton_send_clicked();
     void slot_info_refresh();
     void slot_friend_list_refreshed();
@@ -32,6 +32,7 @@ private slots:
     void on_pushButton_editinfo_clicked();
     void on_listWidget_friends_itemClicked(QListWidgetItem *item);
     void on_pushButton_search_clicked();
+    void show_messages();
 
 private:
     Ui::UserMainWindow *ui;

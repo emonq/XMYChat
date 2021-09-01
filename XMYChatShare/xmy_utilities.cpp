@@ -62,3 +62,8 @@ bool XMY_Utilities::check_valid_email(QString email)
     QRegularExpression re("[a-zA-z0-9]+\\@[a-zA-z0-9]+\\.[a-zA-z0-9]+");
     return re.match(email).hasMatch();
 }
+
+QString XMY_Utilities::get_time_string()
+{
+    return QDateTime::currentDateTime().toString("hh:mm:ss yyyy.MM.dd");
+}

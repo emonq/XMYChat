@@ -105,14 +105,15 @@ void XMY_tcpserver::user_create(QJsonObject user_info, QJsonObject& ret_data)
 
 bool XMY_tcpserver::send_message(QString from_email, QString to_email, QString msg)
 {
-    QNetworkAccessManager* networkmanager = new QNetworkAccessManager();
-    connect(networkmanager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleEndOfRequest(QNetworkReply*)));
+//    QNetworkAccessManager* networkmanager = new QNetworkAccessManager();
+//    connect(networkmanager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleEndOfRequest(QNetworkReply*)));
     XMY_tcpsocket* socket=clients.value(loginusers.value(to_email));
+    if(socket==NULL) return false;
     QJsonObject data;
     data.insert("type",TYPE_RECEIVE_MESSAGE);
     data.insert("from_email",from_email);
     data.insert("message",msg);
-    data.insert("time",QDateTime::currentDateTime().toString("hh:mm:ss yyyy.MM.dd"));
+    data.insert("time",XMY_Utilities::get_time_string());
     emit new_log(QJsonDocument(data).toJson(QJsonDocument::Compact));
     socket->send_json(data);
     return true;

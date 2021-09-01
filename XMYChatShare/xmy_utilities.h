@@ -15,6 +15,7 @@ public:
     static QString get_pic_base64(QString filename);
     static QString get_avatar_filename(QString path, QString email);
     static bool check_valid_email(QString email);
+    static QString get_time_string();
 };
 
 #endif // XMY_UTILITIES_H
