@@ -10,6 +10,7 @@
 #include <QJsonArray>
 #include <QByteArray>
 #include <QDebug>
+#include <QTimer>
 #include <QCryptographicHash>
 #include <QUuid>
 #include <QNetworkAccessManager>

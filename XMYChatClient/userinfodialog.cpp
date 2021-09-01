@@ -6,7 +6,9 @@ UserInfoDialog::UserInfoDialog(QWidget *parent, QString username, QString email)
     ui(new Ui::UserInfoDialog)
 {
     ui->setupUi(this);
-    QPixmap pic(XMY_Utilities::get_avatar_filename(".cache\\",email));
+    QString filename=XMY_Utilities::get_avatar_filename(".cache\\",email);
+    if(!QFile(filename).exists()) filename=".cache\\default.png";
+    QPixmap pic(filename);
     pic.scaled(ui->label_avatar->size(), Qt::KeepAspectRatio);
     ui->label_avatar->setScaledContents(true);
     ui->label_avatar->setPixmap(pic);

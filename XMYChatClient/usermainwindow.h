@@ -33,6 +33,7 @@ private slots:
     void on_listWidget_friends_itemClicked(QListWidgetItem *item);
     void on_pushButton_search_clicked();
     void show_messages();
+    bool eventFilter(QObject* object, QEvent* event);
 
     void on_listWidget_friends_customContextMenuRequested(const QPoint &pos);
     void deleteSeedSlot();

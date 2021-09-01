@@ -40,8 +40,8 @@ public:
     QLabel *label_password;
     QLineEdit *lineEdit_password;
     QHBoxLayout *horizontalLayout_username;
-    QLabel *label_username;
-    QLineEdit *lineEdit_username;
+    QLabel *label_email;
+    QLineEdit *lineEdit_email;
     QCheckBox *checkBox;
     QLabel *label_warnMessage;
     QHBoxLayout *horizontalLayout;
@@ -103,17 +103,17 @@ public:
 
         horizontalLayout_username = new QHBoxLayout();
         horizontalLayout_username->setObjectName(QString::fromUtf8("horizontalLayout_username"));
-        label_username = new QLabel(centralwidget);
-        label_username->setObjectName(QString::fromUtf8("label_username"));
-        label_username->setMinimumSize(QSize(70, 0));
+        label_email = new QLabel(centralwidget);
+        label_email->setObjectName(QString::fromUtf8("label_email"));
+        label_email->setMinimumSize(QSize(70, 0));
 
-        horizontalLayout_username->addWidget(label_username);
+        horizontalLayout_username->addWidget(label_email);
 
-        lineEdit_username = new QLineEdit(centralwidget);
-        lineEdit_username->setObjectName(QString::fromUtf8("lineEdit_username"));
-        lineEdit_username->setClearButtonEnabled(true);
+        lineEdit_email = new QLineEdit(centralwidget);
+        lineEdit_email->setObjectName(QString::fromUtf8("lineEdit_email"));
+        lineEdit_email->setClearButtonEnabled(true);
 
-        horizontalLayout_username->addWidget(lineEdit_username);
+        horizontalLayout_username->addWidget(lineEdit_email);
 
 
         gridLayout_input->addLayout(horizontalLayout_username, 0, 0, 1, 1);
@@ -129,8 +129,9 @@ public:
 
         label_warnMessage = new QLabel(centralwidget);
         label_warnMessage->setObjectName(QString::fromUtf8("label_warnMessage"));
-        label_warnMessage->setEnabled(false);
+        label_warnMessage->setEnabled(true);
         label_warnMessage->setMaximumSize(QSize(16777215, 20));
+        label_warnMessage->setStyleSheet(QString::fromUtf8("color:red;"));
 
         verticalLayout->addWidget(label_warnMessage);
 
@@ -171,7 +172,7 @@ public:
         statusbar = new QStatusBar(LoginWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         LoginWindow->setStatusBar(statusbar);
-        QWidget::setTabOrder(lineEdit_username, lineEdit_password);
+        QWidget::setTabOrder(lineEdit_email, lineEdit_password);
         QWidget::setTabOrder(lineEdit_password, pushButton_login);
         QWidget::setTabOrder(pushButton_login, pushButton_register);
 
@@ -189,9 +190,9 @@ public:
         actionServer_Settings->setText(QCoreApplication::translate("LoginWindow", "Server Settings", nullptr));
         label_title->setText(QCoreApplication::translate("LoginWindow", "Welcome to XMYChat", nullptr));
         label_password->setText(QCoreApplication::translate("LoginWindow", "Password", nullptr));
-        label_username->setText(QCoreApplication::translate("LoginWindow", "Username", nullptr));
+        label_email->setText(QCoreApplication::translate("LoginWindow", "Email", nullptr));
         checkBox->setText(QCoreApplication::translate("LoginWindow", "Show Password", nullptr));
-        label_warnMessage->setText(QString());
+        label_warnMessage->setText(QCoreApplication::translate("LoginWindow", "Connection error!", nullptr));
         pushButton_register->setText(QCoreApplication::translate("LoginWindow", "Register", nullptr));
         pushButton_login->setText(QCoreApplication::translate("LoginWindow", "Login", nullptr));
         menu->setTitle(QCoreApplication::translate("LoginWindow", "Settings", nullptr));

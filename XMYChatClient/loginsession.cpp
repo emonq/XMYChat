@@ -17,7 +17,6 @@ loginsession::~loginsession()
 
 void loginsession::user_login(QString email, QString password)
 {
-    qDebug()<<socket->state();
     if(socket->state()!=QAbstractSocket::ConnectedState) {
         emit general_return(CONNECTION_ERROR);
         emit connection_error();
@@ -112,22 +111,23 @@ void loginsession::fetch_friend_list()
     QJsonObject data;
     data.insert("type",TYPE_FETCH_FRIEND_LIST);
     data.insert("email",info["email"]);
-    qDebug()<<data;
     socket->send_json(data);
 }
 
 void loginsession::get_avatar(QString email, QString md5)
 {
     if(email.isEmpty()) email=info["email"];
-    QString filename=".cache\\"+XMY_Utilities::emailtomd5(email)+".png";
-    QPixmap pic(filename);
-    QString picmd5=XMY_Utilities::pixmaptomd5(pic);
-    qDebug()<<email<<"cache md5: "<<picmd5<<" remote md5: "<<md5;
-    if(picmd5==md5) return;
+    QString filename=XMY_Utilities::get_avatar_filename(".cache\\",email);
     QJsonObject data;
+    if(QFile(filename).exists()){
+        QPixmap pic(filename);
+        QString picmd5=XMY_Utilities::pixmaptomd5(pic);
+//        qDebug()<<email<<filename<<"cache md5: "<<picmd5<<" remote md5: "<<md5;
+        if(picmd5==md5) return;
+        data.insert("md5",picmd5);
+    }
     data.insert("type",TYPE_GET_AVATAR);
     data.insert("email",email);
-    data.insert("md5",picmd5);
     socket->send_json(data);
 }
 
@@ -154,6 +154,7 @@ void loginsession::delete_user(QString email)
     data.insert("type",TYPE_DELETE_FRIEND);
     data.insert("email1",email);
     data.insert("email2",info.value("email"));
+    db->delete_friend(email);
     socket->send_json(data);
 }
 
@@ -197,7 +198,6 @@ void loginsession::callback_process(QJsonObject data)
         break;
     }
     case TYPE_FETCH_FRIEND_LIST: {
-        qDebug()<<"Fetched "<<data.value("count").toInt()<<" friends";
         friend_email_list.clear();
         friends.clear();
         for(auto i:data.value("list").toArray()) {
@@ -212,21 +212,21 @@ void loginsession::callback_process(QJsonObject data)
     case TYPE_SEARCH_USER: {
         if(data.value("count").toInt()>0) {
             userStruct user(data.value("username").toString(),data.value("email").toString(),data.value("avatarmd5").toString());
+            get_avatar(data.value("email").toString(),data.value("avatarmd5").toString());
             emit user_found(user);
         }
         else emit user_not_found();
         break;
     }
     case TYPE_GET_AVATAR: {
-        if(data.value("email").toString()==info.value("email")) fetch_friend_list();
         if(data.value("result").toInt()==GET_AVATAR_OK) {
             if(XMY_Utilities::checkDir(".cache")){
-                QString filename=".cache\\"+XMY_Utilities::emailtomd5(data.value("email").toString())+".png";
+                QString filename=XMY_Utilities::get_avatar_filename(".cache\\",data.value("email").toString());
+//                QString filename=".cache\\"+XMY_Utilities::emailtomd5(data.value("email").toString())+".png";
                 XMY_Utilities::save_pic_from_base64(data.value("avatar").toString(),filename);
                 emit avatar_got(data.value("email").toString());
             }
         }
-
         break;
     }
     default: emit general_return(data.value("result").toInt());
@@ -250,5 +250,5 @@ void loginsession::slot_disconnected()
     qDebug("disconnected");
     emit general_return(CONNECTION_ERROR);
     emit sig_logout();
-//    delete socket;
+    delete socket;
 }

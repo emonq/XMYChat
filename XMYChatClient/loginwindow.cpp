@@ -14,7 +14,7 @@ LoginWindow::LoginWindow(QWidget *parent)
     settings=new xmyUserSettings;
     ui->pushButton_login->setDefault(true);
     connect(ui->lineEdit_password,&QLineEdit::returnPressed,ui->pushButton_login,&QPushButton::click);
-    connect(ui->lineEdit_username,&QLineEdit::returnPressed,this,[=](){
+    connect(ui->lineEdit_email,&QLineEdit::returnPressed,this,[=](){
         ui->lineEdit_password->setFocus();
     });
     QVariant ip, port;
@@ -45,7 +45,7 @@ void LoginWindow::on_pushButton_login_clicked()
         ui->label_warnMessage->setStyleSheet("color:black;");
         ui->label_warnMessage->setText("Logging in...");
         set_widgets(false);
-        session->user_login(ui->lineEdit_username->text().trimmed().toLower(), ui->lineEdit_password->text());
+        session->user_login(ui->lineEdit_email->text().trimmed().toLower(), ui->lineEdit_password->text());
     }
 }
 
@@ -130,15 +130,15 @@ void LoginWindow::on_pushButton_register_clicked()
     if(check_form()) {
         ui->label_warnMessage->setStyleSheet("color:black;");
         ui->label_warnMessage->setText("Registering new user...");
-        session->user_register(ui->lineEdit_username->text().trimmed().toLower(), ui->lineEdit_password->text());
+        session->user_register(ui->lineEdit_email->text().trimmed().toLower(), ui->lineEdit_password->text());
     }
 }
 
 bool LoginWindow::check_form()
 {
-    if(ui->lineEdit_username->text().isEmpty() || ui->lineEdit_password->text().isEmpty()) {
+    if(ui->lineEdit_email->text().isEmpty() || ui->lineEdit_password->text().isEmpty()) {
         ui->label_warnMessage->setStyleSheet("color:red;");
-        if(ui->lineEdit_username->text().isEmpty()) {
+        if(ui->lineEdit_email->text().isEmpty()) {
             ui->label_warnMessage->setText("Username cannot be empty!");
             return false;
         }
@@ -162,7 +162,7 @@ void LoginWindow::verify()
 void LoginWindow::set_widgets(bool status)
 {
     ui->lineEdit_password->setEnabled(status);
-    ui->lineEdit_username->setEnabled(status);
+    ui->lineEdit_email->setEnabled(status);
     ui->pushButton_login->setEnabled(status);
     ui->pushButton_register->setEnabled(status);
 }

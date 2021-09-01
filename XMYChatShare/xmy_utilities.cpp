@@ -53,7 +53,7 @@ QString XMY_Utilities::get_pic_base64(QString filename)
 QString XMY_Utilities::get_avatar_filename(QString path, QString email)
 {
     QString filename=path+emailtomd5(email)+".png";
-    if(!QFile(filename).exists()) filename=path+"default.png";
+    if(path==".avatar\\" && !QFile(filename).exists()) filename=path+"default.png";
     return filename;
 }
 

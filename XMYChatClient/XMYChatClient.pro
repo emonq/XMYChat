@@ -44,7 +44,9 @@ FORMS += \
     usermainwindow.ui \
     verificationdialog.ui
 
-TRANSLATIONS += \
+UI_DIR = .
+
+#TRANSLATIONS += \
 CONFIG += lrelease
 CONFIG += embed_translations
 

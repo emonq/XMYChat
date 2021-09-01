@@ -222,12 +222,23 @@ void XMY_tcpserver::delete_friend(QString email1, QString email2)
 
 void XMY_tcpserver::update_friend_list(QString email)
 {
+    if(!loginusers.contains(email) || !clients.contains(loginusers.value(email))) return;
     XMY_tcpsocket* socket=clients.value(loginusers.value(email));
     if(socket==NULL) return;
     QJsonObject data;
     data.insert("type",TYPE_FETCH_FRIEND_LIST);
     fetch_friend_list(email,data);
     socket->send_json(data);
+}
+
+void XMY_tcpserver::push_update_to_friends(QString email)
+{
+    QMap<QString,QVariant> info;
+    db->get_user_by_email(email,info,"u_friends");
+    QStringList friend_list=info.value("u_friends").toString().split(';',Qt::SkipEmptyParts);
+    for(auto &i:friend_list) {
+        if(loginusers.contains(i) && clients.contains(loginusers.value(i))) update_friend_list(i);
+    }
 }
 
 void XMY_tcpserver::request_process(QJsonObject req)
@@ -271,6 +282,7 @@ void XMY_tcpserver::request_process(QJsonObject req)
             else if(i=="username") db->set_user_by_email(email,"u_username",req.value(i));
             else if(i=="password") db->set_user_by_email(email,"u_password",req.value(i).toString().toUtf8().toBase64());
         }
+        push_update_to_friends(email);
         break;
     }
     case TYPE_GET_USER_INFO: {

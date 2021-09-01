@@ -16,7 +16,6 @@ XMY_tcpsocket::XMY_tcpsocket(qintptr socketDescriptor)
 void XMY_tcpsocket::send_json(QJsonObject data)
 {
     QByteArray rawdata=QJsonDocument(data).toJson(QJsonDocument::Compact);
-    QByteArray buf;
     write(rawdata);
 }
 
@@ -27,13 +26,13 @@ void XMY_tcpsocket::slot_ready_read()
         if(!waitForReadyRead(10)) break;
         rawdata.append(readAll());
     }
-    qDebug()<<rawdata;
+//    qDebug()<<rawdata;
     if(QJsonDocument::fromJson(rawdata).isNull()){ // 解决粘包问题
         qsizetype pos;
         QByteArray data;
         while((pos=rawdata.lastIndexOf("}{"))!=-1) {
             data=rawdata.sliced(pos+1);
-            qDebug()<<"splited "<<data;
+//            qDebug()<<"splited "<<data;
             rawdata.truncate(pos+1);
             emit receive_json(QJsonDocument::fromJson(data).object());
         }
