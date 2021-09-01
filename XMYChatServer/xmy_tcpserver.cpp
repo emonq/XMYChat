@@ -78,7 +78,7 @@ void XMY_tcpserver::user_authentication(QJsonObject login_info, QJsonObject& ret
             else if(res.value("is_waiting_verification").toInt()==1) result=LOGIN_USER_WAITING_VERIFICATION;
             else {
                 result=LOGIN_SUCCESS;
-//                if(loginusers.contains(login_info.value("email").toString())) clients.value(loginusers.value(login_info.value("email").toString()))->disconnectFromHost();
+                if(loginusers.contains(email) && clients.contains(loginusers.value(email))) clients.value(loginusers.value(email))->disconnectFromHost();
                 loginusers.insert(login_info.value("email").toString(),socketDescriptor);
             }
         }
@@ -106,8 +106,6 @@ void XMY_tcpserver::user_create(QJsonObject user_info, QJsonObject& ret_data)
 
 bool XMY_tcpserver::send_message(QString from_email, QString to_email, QString msg)
 {
-//    QNetworkAccessManager* networkmanager = new QNetworkAccessManager();
-//    connect(networkmanager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleEndOfRequest(QNetworkReply*)));
     XMY_tcpsocket* socket=clients.value(loginusers.value(to_email));
     if(socket==NULL) return false;
     QJsonObject data;
