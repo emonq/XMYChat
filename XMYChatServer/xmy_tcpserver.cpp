@@ -134,7 +134,7 @@ bool XMY_tcpserver::email_verify(QString email, int code, QJsonObject& ret_data)
             db->set_user_by_email(email,"is_waiting_verification",0);
         }
         else {
-            ret_data.insert("result",REGISTER_WAITING_VERIFICATION);
+            ret_data.insert("result",REGISTER_VERIFY_ERROR);
         }
         return true;
     }
