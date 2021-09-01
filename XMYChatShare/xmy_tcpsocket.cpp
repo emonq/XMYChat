@@ -23,12 +23,12 @@ void XMY_tcpsocket::send_json(QJsonObject data)
 void XMY_tcpsocket::slot_ready_read()
 {
     QByteArray rawdata=readAll();
-    while(QJsonDocument::fromJson(rawdata).isNull()) {
+    while(QJsonDocument::fromJson(rawdata).isNull()) { // 解决大数据接收问题
         if(!waitForReadyRead(10)) break;
         rawdata.append(readAll());
     }
     qDebug()<<rawdata;
-    if(QJsonDocument::fromJson(rawdata).isNull()){
+    if(QJsonDocument::fromJson(rawdata).isNull()){ // 解决粘包问题
         qsizetype pos;
         QByteArray data;
         while((pos=rawdata.lastIndexOf("}{"))!=-1) {

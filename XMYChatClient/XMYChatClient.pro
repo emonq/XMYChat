@@ -12,6 +12,7 @@ SOURCES += \
     ../XMYChatShare/xmy_tcpsocket.cpp \
     ../XMYChatShare/xmy_utilities.cpp \
     clientdatabase.cpp \
+    friendsearchdialog.cpp \
     loginsession.cpp \
     main.cpp \
     loginwindow.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     ../XMYChatShare/xmy_tcpsocket.h \
     ../XMYChatShare/xmy_utilities.h \
     clientdatabase.h \
+    friendsearchdialog.h \
     loginsession.h \
     loginwindow.h \
     settingdialog.h \
@@ -35,6 +37,7 @@ HEADERS += \
     xmyusersettings.h
 
 FORMS += \
+    friendsearchdialog.ui \
     loginwindow.ui \
     settingdialog.ui \
     userinfodialog.ui \

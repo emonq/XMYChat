@@ -18,7 +18,7 @@ QString XMY_Utilities::pixmaptomd5(QPixmap pic) {
 
 QString XMY_Utilities::emailtomd5(QString email)
 {
-    return QCryptographicHash::hash(email.toLower().toUtf8(),QCryptographicHash::Md5).toHex();
+    return QCryptographicHash::hash(email.trimmed().toLower().toUtf8(),QCryptographicHash::Md5).toHex();
 }
 
 bool XMY_Utilities::checkDir(QString path)
@@ -52,5 +52,13 @@ QString XMY_Utilities::get_pic_base64(QString filename)
 
 QString XMY_Utilities::get_avatar_filename(QString path, QString email)
 {
-    return path+emailtomd5(email)+".png";
+    QString filename=path+emailtomd5(email)+".png";
+    if(!QFile(filename).exists()) filename=path+"default.png";
+    return filename;
+}
+
+bool XMY_Utilities::check_valid_email(QString email)
+{
+    QRegularExpression re("[a-zA-z0-9]+\\@[a-zA-z0-9]+\\.[a-zA-z0-9]+");
+    return re.match(email).hasMatch();
 }

@@ -12,7 +12,6 @@ UserInfoDialog::UserInfoDialog(QWidget *parent, QString username, QString email)
     ui->label_avatar->setPixmap(pic);
     ui->lineEdit_email->setText(email);
     ui->lineEdit_username->setText(username);
-
 }
 
 UserInfoDialog::~UserInfoDialog()

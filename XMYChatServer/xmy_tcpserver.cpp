@@ -62,7 +62,7 @@ void XMY_tcpserver::incomingConnection(qintptr socketDescriptor)
 void XMY_tcpserver::user_authentication(QJsonObject login_info, QJsonObject& ret_data, qintptr socketDescriptor)
 {
     QString email=login_info.value("email").toString();
-    if(!check_valid_email(email)) {
+    if(!XMY_Utilities::check_valid_email(email)) {
         ret_data.insert("result",LOGIN_INFO_ERROR);
         return;
     }
@@ -91,7 +91,7 @@ void XMY_tcpserver::user_create(QJsonObject user_info, QJsonObject& ret_data)
     int result;
     QString email=user_info.value("email").toString();
     QString password=user_info.value("password").toString().toUtf8().toBase64();
-    if(!check_valid_email(email)) {
+    if(!XMY_Utilities::check_valid_email(email)) {
         ret_data.insert("result",REGISTER_INFO_ERROR);
         return;
     }
@@ -158,11 +158,6 @@ void XMY_tcpserver::send_verification_code(QString email)
     emit new_log(QString("Sent verification code %1 to %2").arg(code).arg(email));
 }
 
-bool XMY_tcpserver::check_valid_email(QString email)
-{
-    QRegularExpression re("[a-zA-z0-9]+\\@[a-zA-z0-9]+\\.[a-zA-z0-9]+");
-    return re.match(email).hasMatch();
-}
 
 bool XMY_tcpserver::fetch_friend_list(QString email, QJsonObject& ret)
 {
@@ -179,15 +174,45 @@ bool XMY_tcpserver::fetch_friend_list(QString email, QJsonObject& ret)
         db->get_user_by_email(i,friend_info,"u_username");
         tmp.insert("email",i);
         tmp.insert("username",friend_info["u_username"].toString());
-        QString avatar_file=".avatar\\"+XMY_Utilities::emailtomd5(i)+".png";
-        if(QDir(avatar_file).exists()){
-            tmp.insert("avatarmd5",XMY_Utilities::pixmaptomd5(QPixmap(avatar_file)));
-        }
-        else tmp.insert("avatarmd5",XMY_Utilities::pixmaptomd5(QPixmap(".avatar\\default.png")));
+        QString avatar_file=XMY_Utilities::get_avatar_filename(".avatar\\",i);
+        if(!QFile(avatar_file).exists()) avatar_file=".avatar\\default.png";
+        tmp.insert("avatarmd5",XMY_Utilities::pixmaptomd5(QPixmap(avatar_file)));
         friends_array.append(tmp);
     }
     ret.insert("list",friends_array);
     return true;
+}
+
+void XMY_tcpserver::search_user(QString email, QJsonObject &ret)
+{
+    QMap<QString, QVariant> info;
+    ret.insert("type",TYPE_SEARCH_USER);
+    if(db->get_user_by_email(email,info,"u_username")==RECORD_NOT_FOUND) {
+        ret.insert("count",0);
+        return;
+    }
+    ret.insert("count",1);
+    ret.insert("email",email);
+    ret.insert("username",info.value("u_username").toString());
+    ret.insert("avatarmd5",XMY_Utilities::pixmaptomd5(QPixmap(XMY_Utilities::get_avatar_filename(".avatar\\",email))));
+}
+
+void XMY_tcpserver::add_friend(QString email1, QString email2)
+{
+    QMap<QString,QVariant> info;
+    db->get_user_by_email(email1,info,"u_friends");
+    QString friend_list=info.value("u_friends").toString();
+    friend_list.append(email2+';');
+    db->set_user_by_email(email1,"u_friends",friend_list);
+}
+
+void XMY_tcpserver::delete_friend(QString email1, QString email2)
+{
+    QMap<QString, QVariant> info;
+    db->get_user_by_email(email1,info,"u_friends");
+    QString friend_list=info.value("u_friends").toString();
+    friend_list.remove(email2+';');
+    db->set_user_by_email(email1,"u_friends",friend_list);
 }
 
 void XMY_tcpserver::request_process(QJsonObject req)
@@ -225,7 +250,7 @@ void XMY_tcpserver::request_process(QJsonObject req)
         for(auto &i:req.keys()) {
             if(i=="avatar") XMY_Utilities::save_pic_from_base64(req.value(i).toString(),".avatar\\"+XMY_Utilities::emailtomd5(email)+".png");
             else if(i=="email") {
-                if(check_valid_email(req.value(i).toString()))
+                if(XMY_Utilities::check_valid_email(req.value(i).toString()))
                     db->set_user_by_email(email,"u_email",req.value(i));
             }
             else if(i=="username") db->set_user_by_email(email,"u_username",req.value(i));
@@ -257,6 +282,20 @@ void XMY_tcpserver::request_process(QJsonObject req)
     case TYPE_FETCH_FRIEND_LIST: {
         ret.insert("type",TYPE_FETCH_FRIEND_LIST);
         fetch_friend_list(req.value("email").toString(),ret);
+        break;
+    }
+    case TYPE_SEARCH_USER: {
+        search_user(req.value("email").toString(),ret);
+        break;
+    }
+    case TYPE_ADD_FRIEND: {
+        add_friend(req.value("email1").toString(),req.value("email2").toString());
+        add_friend(req.value("email2").toString(),req.value("email1").toString());
+        break;
+    }
+    case TYPE_DELETE_FRIEND: {
+        delete_friend(req.value("email1").toString(),req.value("email2").toString());
+        delete_friend(req.value("email2").toString(),req.value("email1").toString());
         break;
     }
     default: {

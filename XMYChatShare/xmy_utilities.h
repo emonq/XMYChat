@@ -14,6 +14,7 @@ public:
     static void save_pic_from_base64(QString base64, QString filename);
     static QString get_pic_base64(QString filename);
     static QString get_avatar_filename(QString path, QString email);
+    static bool check_valid_email(QString email);
 };
 
 #endif // XMY_UTILITIES_H

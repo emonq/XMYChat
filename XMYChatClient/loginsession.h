@@ -16,6 +16,7 @@ public:
     QHash<QString, QString> info;
     QList<userStruct> friends;
     QHash<QString, QListWidgetItem*> friend_item;
+    QStringList friend_email_list;
 
     explicit loginsession(QObject *parent = nullptr);
     ~loginsession();
@@ -29,6 +30,9 @@ public:
     void get_user_info(QString email=QString());
     void fetch_friend_list();
     void get_avatar(QString email=QString(), QString md5=QString());
+    void search_user(QString email);
+    void add_user(QString email);
+    void delete_user(QString email);
 
 signals:
     void connection_error();
@@ -40,6 +44,9 @@ signals:
     void info_refreshed();
     void friend_list_refreshed();
     void avatar_got(QString email);
+    void user_found(userStruct user);
+    void user_not_found();
+    void add_user_to_contact(QString email);
 
 private:
     XMY_tcpsocket *socket;

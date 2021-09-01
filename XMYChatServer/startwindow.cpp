@@ -26,7 +26,8 @@ void StartWindow::show_log(QVariant msg)
     QString output=QDateTime::currentDateTime().toString("[yyyy.MM.dd hh:mm:ss] ");
     if(DEBUG_MODE) qDebug()<<output<<msg;
     output+=msg.toString();
-    ui->listWidget_logShow->addItem(output);
+    if(output.size()<1000) ui->listWidget_logShow->addItem(output);
+    else ui->listWidget_logShow->addItem("Message too large");
     ui->listWidget_logShow->scrollToBottom();
 }
 

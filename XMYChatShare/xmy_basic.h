@@ -23,6 +23,7 @@
 #include <QBuffer>
 #include <QEventLoop>
 #include <QListWidgetItem>
+#include <QMetaType>
 
 #define CONNECTION_CONNECTED 500
 #define CONNECTION_ERROR 501
@@ -44,6 +45,8 @@
 #define TYPE_LOGIN 9
 #define TYPE_GET_USER_INFO 10
 #define TYPE_GET_AVATAR 11
+#define TYPE_SEARCH_USER 12
+#define TYPE_DELETE_FRIEND 13
 
 #define LOGIN_SUCCESS 0
 #define LOGIN_INFO_ERROR 1

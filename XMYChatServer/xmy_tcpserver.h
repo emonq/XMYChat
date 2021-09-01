@@ -37,10 +37,11 @@ private:
     bool send_message(QString from_username, QString to_username, QString msg);
     bool email_verify(QString email, int code, QJsonObject& ret_data);
     void send_verification_code(QString email);
-    bool check_valid_email(QString email);
     bool fetch_friend_list(QString email, QJsonObject& ret);
     bool update_friend_list(QString email, QString f_email, friendOperations operation);
-
+    void search_user(QString email, QJsonObject& ret);
+    void add_friend(QString email1, QString email2);
+    void delete_friend(QString email1, QString email2);
 
 private slots:
     void slot_disconnected();

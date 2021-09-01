@@ -14,6 +14,11 @@ UserMainWindow::UserMainWindow(QWidget *parent, loginsession* session) :
     connect(session,&loginsession::info_refreshed,this,&UserMainWindow::slot_info_refresh);
     connect(session,&loginsession::avatar_got,this,&UserMainWindow::slot_avatar_got);
     connect(session,&loginsession::friend_list_refreshed,this,&UserMainWindow::slot_friend_list_refreshed);
+    connect(session,&loginsession::user_found,this,&UserMainWindow::slot_user_found);
+    connect(session,&loginsession::user_not_found,this,[=](){
+        QMessageBox warning(QMessageBox::Warning,"Error","User not found",QMessageBox::Ok,this);
+        warning.exec();
+    });
     session->get_user_info();
 
 //    session->fetch_friend_list();
@@ -73,12 +78,32 @@ void UserMainWindow::slot_avatar_got(QString email)
     }
 }
 
+void UserMainWindow::slot_user_found(userStruct user)
+{
+    FriendSearchDialog dialog(this,user.username,user.email);
+    session->get_avatar(user.email,user.avatarmd5);
+    if(dialog.exec()==QDialog::Accepted) {
+        if(!session->friend_email_list.contains(user.email)){
+            QListWidgetItem* item=new QListWidgetItem(ui->listWidget_friends);
+            item->setIcon(QPixmap(XMY_Utilities::get_avatar_filename(".cache\\",user.email)));
+            item->setText(user.username+'\n'+user.email);
+            session->friend_email_list.append(user.email);
+            session->friends.append(user);
+            session->friend_item.insert(user.email,item);
+            session->add_user(user.email);
+            slot_friend_list_refreshed();
+        }
+        else {
+            QMessageBox warning(QMessageBox::Warning,"Error","This user has been your friend",QMessageBox::Ok,this);
+            warning.exec();
+        }
+    }
+}
 
 void UserMainWindow::on_pushButton_logout_clicked()
 {
     slot_logout();
 }
-
 
 void UserMainWindow::on_pushButton_editinfo_clicked()
 {
@@ -119,5 +144,18 @@ void UserMainWindow::on_listWidget_friends_itemClicked(QListWidgetItem *item)
     ui->label_username_friend->setText(info[0]);
     QPixmap avatar(".cache\\"+XMY_Utilities::emailtomd5(info[1])+".png");
     ui->label_avatar_friend->setPixmap(avatar);
+}
+
+
+void UserMainWindow::on_pushButton_search_clicked()
+{
+    if(ui->lineEdit_usersearchinput->text().isEmpty() || !XMY_Utilities::check_valid_email(ui->lineEdit_usersearchinput->text())) {
+        QMessageBox warning(QMessageBox::Warning,"Error","Please input a valid email",QMessageBox::Ok,this);
+        warning.exec();
+    }
+    else {
+        session->search_user(ui->lineEdit_usersearchinput->text());
+    }
+    ui->lineEdit_usersearchinput->clear();
 }
 

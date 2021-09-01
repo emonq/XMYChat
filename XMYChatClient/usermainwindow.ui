@@ -61,7 +61,11 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLineEdit" name="lineEdit_usersearchinput"/>
+         <widget class="QLineEdit" name="lineEdit_usersearchinput">
+          <property name="placeholderText">
+           <string>Search new friend by email</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_search">

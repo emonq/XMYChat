@@ -120,11 +120,38 @@ void loginsession::get_avatar(QString email, QString md5)
     QString filename=".cache\\"+XMY_Utilities::emailtomd5(email)+".png";
     QPixmap pic(filename);
     QString picmd5=XMY_Utilities::pixmaptomd5(pic);
+    qDebug()<<email<<"cache md5: "<<picmd5<<" remote md5: "<<md5;
     if(picmd5==md5) return;
     QJsonObject data;
     data.insert("type",TYPE_GET_AVATAR);
     data.insert("email",email);
     data.insert("md5",picmd5);
+    socket->send_json(data);
+}
+
+void loginsession::search_user(QString email)
+{
+    QJsonObject data;
+    data.insert("type",TYPE_SEARCH_USER);
+    data.insert("email",email);
+    socket->send_json(data);
+}
+
+void loginsession::add_user(QString email)
+{
+    QJsonObject data;
+    data.insert("type",TYPE_ADD_FRIEND);
+    data.insert("email1",email);
+    data.insert("email2",info.value("email"));
+    socket->send_json(data);
+}
+
+void loginsession::delete_user(QString email)
+{
+    QJsonObject data;
+    data.insert("type",TYPE_DELETE_FRIEND);
+    data.insert("email1",email);
+    data.insert("email2",info.value("email"));
     socket->send_json(data);
 }
 
@@ -161,10 +188,19 @@ void loginsession::callback_process(QJsonObject data)
     case TYPE_FETCH_FRIEND_LIST: {
         qDebug()<<"Fetched "<<data.value("count").toInt()<<" friends";
         for(auto i:data.value("list").toArray()) {
+            friend_email_list.append(i.toObject().value("email").toString());
             friends.append(userStruct(i.toObject().value("username").toString(),i.toObject().value("email").toString(),i.toObject().value("avatarmd5").toString()));
             get_avatar(i.toObject().value("email").toString(),i.toObject().value("avatarmd5").toString());
         }
         emit friend_list_refreshed();
+        break;
+    }
+    case TYPE_SEARCH_USER: {
+        if(data.value("count").toInt()>0) {
+            userStruct user(data.value("username").toString(),data.value("email").toString(),data.value("avatarmd5").toString());
+            emit user_found(user);
+        }
+        else emit user_not_found();
         break;
     }
     case TYPE_GET_AVATAR: {
