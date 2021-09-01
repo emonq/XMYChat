@@ -97,11 +97,12 @@ void XMY_tcpserver::user_create(QJsonObject user_info, QJsonObject& ret_data)
     int result;
     QString email=user_info.value("email").toString();
     QString password=user_info.value("password").toString().toUtf8().toBase64();
+    QString username=user_info.value("username").toString();
     if(!XMY_Utilities::check_valid_email(email)) {
         ret_data.insert("result",REGISTER_INFO_ERROR);
         return;
     }
-    if(db->new_user(email,password)) {
+    if(db->new_user(email,password,username)) {
         result=REGISTER_WAITING_VERIFICATION;
         send_verification_code(email);
     }

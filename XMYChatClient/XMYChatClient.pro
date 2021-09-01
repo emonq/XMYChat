@@ -16,6 +16,7 @@ SOURCES += \
     loginsession.cpp \
     main.cpp \
     loginwindow.cpp \
+    registerdialog.cpp \
     settingdialog.cpp \
     userinfodialog.cpp \
     usermainwindow.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     friendsearchdialog.h \
     loginsession.h \
     loginwindow.h \
+    registerdialog.h \
     settingdialog.h \
     userinfodialog.h \
     usermainwindow.h \
@@ -39,6 +41,7 @@ HEADERS += \
 FORMS += \
     friendsearchdialog.ui \
     loginwindow.ui \
+    registerdialog.ui \
     settingdialog.ui \
     userinfodialog.ui \
     usermainwindow.ui \

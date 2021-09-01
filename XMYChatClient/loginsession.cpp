@@ -31,12 +31,12 @@ void loginsession::user_login(QString email, QString password)
     socket->send_json(login_info);
 }
 
-void loginsession::user_register(QString email, QString password)
+bool loginsession::user_register(QString email, QString password, QString username)
 {
     if(socket->state()!=QAbstractSocket::ConnectedState) {
         emit general_return(CONNECTION_ERROR);
         emit connection_error();
-        return;
+        return false;
     }
     info["email"]=email;
     QJsonObject user_info;
@@ -44,8 +44,10 @@ void loginsession::user_register(QString email, QString password)
     QString hash_password=QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha384).toHex();
     user_info.insert("email",email);
     user_info.insert("password",hash_password);
+    user_info.insert("username",username);
     QJsonDocument data(user_info);
     socket->write(data.toJson(QJsonDocument::Compact));
+    return true;
 }
 
 void loginsession::establish_connect()

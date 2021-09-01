@@ -62,12 +62,13 @@ int XMY_database::get_user_by_email(QString email, QMap<QString,QVariant>&info, 
     return SUCCESS;
 }
 
-int XMY_database::new_user(QString email, QString password)
+int XMY_database::new_user(QString email, QString password, QString username)
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO users(u_email,u_password,is_waiting_verification) VALUES(:email,:password,1)");
+    query.prepare("INSERT INTO users(u_email,u_password,u_username) VALUES(:email,:password,:username)");
     query.bindValue(":email",email);
     query.bindValue(":password",password);
+    query.bindValue(":username",username);
     if(!query.exec()) {
         emit new_log(query.lastError().text());
         return false;

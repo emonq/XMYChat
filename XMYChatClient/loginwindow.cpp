@@ -9,7 +9,6 @@ LoginWindow::LoginWindow(QWidget *parent)
     ui->setupUi(this);
     ui->pushButton_login->setShortcut(Qt::Key_Enter);
     connect(session,&loginsession::login_return,this,&LoginWindow::slot_login_callback);
-    connect(session,&loginsession::register_return,this,&LoginWindow::slot_register_callback);
     connect(session,&loginsession::general_return,this,&LoginWindow::slot_general_callback);
     settings=new xmyUserSettings;
     ui->pushButton_login->setDefault(true);
@@ -28,7 +27,6 @@ LoginWindow::~LoginWindow()
     delete ui;
     delete settings;
 }
-
 
 void LoginWindow::on_checkBox_stateChanged(int arg1)
 {
@@ -87,26 +85,6 @@ void LoginWindow::slot_login_callback(int result)
     set_widgets(true);
 }
 
-void LoginWindow::slot_register_callback(int result)
-{
-    if(result==REGISTER_SUCCESS) {
-        ui->label_warnMessage->setText("Register successful");
-        ui->label_warnMessage->setStyleSheet("color:green;");
-    }
-    else {
-        switch (result) {
-        case REGISTER_WAITING_VERIFICATION: {
-            verify();
-            break;
-        }
-        case REGISTER_USER_EXISTED: ui->label_warnMessage->setText("User existed!");break;
-        case REGISTER_INFO_ERROR: ui->label_warnMessage->setText("Username or password illegal!");break;
-        default: ui->label_warnMessage->setText(QString("Unknown error %1").arg(result));
-        }
-        ui->label_warnMessage->setStyleSheet("color:red;");
-    }
-    set_widgets(true);
-}
 
 void LoginWindow::slot_general_callback(int result)
 {
@@ -127,10 +105,12 @@ void LoginWindow::slot_general_callback(int result)
 
 void LoginWindow::on_pushButton_register_clicked()
 {
-    if(check_form()) {
-        ui->label_warnMessage->setStyleSheet("color:black;");
-        ui->label_warnMessage->setText("Registering new user...");
-        session->user_register(ui->lineEdit_email->text().trimmed().toLower(), ui->lineEdit_password->text());
+    RegisterDialog* regdlg=new RegisterDialog(session,this,ui->lineEdit_email->text(),ui->lineEdit_password->text());
+    if(regdlg->exec()==1) {
+        ui->lineEdit_email->setText(session->info.value("email"));
+        ui->label_warnMessage->setText("Register success!");
+        ui->label_warnMessage->setStyleSheet("color:green;");
+        ui->lineEdit_password->setFocus();
     }
 }
 

@@ -20,7 +20,7 @@ public:
     void disconnect_db();
     bool init_db();
     int get_user_by_email(QString email, QMap<QString,QVariant>&info, QString fields);
-    int new_user(QString email, QString password);
+    int new_user(QString email, QString password, QString username);
     bool set_user_by_email(QString email, QString fields, QVariant value);
 
 signals:

@@ -22,7 +22,7 @@ public:
     explicit loginsession(QObject *parent = nullptr);
     ~loginsession();
     void user_login(QString email, QString password);
-    void user_register(QString username, QString password);
+    bool user_register(QString email, QString password, QString username);
     void establish_connect();
     void logout();
     void send_message(QString to_email, QString msg);
