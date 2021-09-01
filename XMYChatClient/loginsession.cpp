@@ -52,12 +52,11 @@ bool loginsession::user_register(QString email, QString password, QString userna
 
 void loginsession::establish_connect()
 {
-    socket->deleteLater();
+    socket->disconnectFromHost();
     socket=new XMY_tcpsocket;
     connect(socket,&XMY_tcpsocket::connected,this,&loginsession::slot_connected);
     connect(socket,&XMY_tcpsocket::disconnected,this,&loginsession::slot_disconnected);
     connect(socket,&XMY_tcpsocket::receive_json,this,&loginsession::callback_process);
-
     qDebug()<<"connecting";
     QVariant ip, port;
     settings->get_value("Server ip",ip);
@@ -252,5 +251,5 @@ void loginsession::slot_disconnected()
     qDebug("disconnected");
     emit general_return(CONNECTION_ERROR);
     emit sig_logout();
-    delete socket;
+    socket->deleteLater();
 }

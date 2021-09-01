@@ -6,10 +6,10 @@ XMY_tcpsocket::XMY_tcpsocket(QObject *parent) : QTcpSocket(parent)
     setSocketOption(QAbstractSocket::LowDelayOption,1);
 }
 
-XMY_tcpsocket::XMY_tcpsocket(qintptr socketDescriptor)
+XMY_tcpsocket::XMY_tcpsocket(qintptr socketDescriptor, QUuid socketId)
 {
+    id=socketId;
     setSocketDescriptor(socketDescriptor);
-    id=socketDescriptor;
     connect(this,&XMY_tcpsocket::readyRead,this,&XMY_tcpsocket::slot_ready_read);
 }
 

@@ -6,6 +6,11 @@ UserMainWindow::UserMainWindow(QWidget *parent, loginsession* session) :
     ui(new Ui::UserMainWindow),
     session(session)
 {
+    if(!QFile(".cache\\default.png").exists()) {
+        QString default_avatar="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";
+        XMY_Utilities::checkDir(".cache");
+        XMY_Utilities::save_pic_from_base64(default_avatar,".cache\\default.png");
+    }
     ui->setupUi(this);
     connect(session,&loginsession::sig_logout,this,&UserMainWindow::slot_logout);
     connect(session,&loginsession::sig_receive_message,this,&UserMainWindow::slot_receive_message);
@@ -32,11 +37,6 @@ UserMainWindow::UserMainWindow(QWidget *parent, loginsession* session) :
     session->fetch_friend_list();
     session->get_avatar();
     ui->plainTextEdit_msginput->installEventFilter(this);
-    if(!QFile(".cache\\default.png").exists()) {
-        QString default_avatar="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";
-        XMY_Utilities::checkDir(".cache");
-        XMY_Utilities::save_pic_from_base64(default_avatar,".cache\\default.png");
-    }
 }
 
 UserMainWindow::~UserMainWindow()
@@ -109,12 +109,7 @@ void UserMainWindow::slot_avatar_got(QString email)
 
 void UserMainWindow::slot_user_found(userStruct user)
 {
-//    QEventLoop *loop=new QEventLoop;
-//    connect(session,&loginsession::avatar_got,loop,&QEventLoop::quit);
-//    QTimer::singleShot(100,NULL,[loop]{loop->quit();});
-//    loop->exec();
     FriendSearchDialog dialog(session,this,user.username,user.email);
-//    session->get_avatar(user.email,user.avatarmd5);
     if(dialog.exec()==QDialog::Accepted) {
         if(!session->friend_email_list.contains(user.email)){
             session->add_user(user.email);
@@ -182,7 +177,7 @@ void UserMainWindow::on_listWidget_friends_itemClicked(QListWidgetItem *item)
     QStringList info=item->text().split('\n');
     ui->label_email_friend->setText(info[1]);
     ui->label_username_friend->setText(info[0]);
-    QPixmap avatar(".cache\\"+XMY_Utilities::emailtomd5(info[1])+".png");
+    QPixmap avatar(XMY_Utilities::get_avatar_filename(".cache\\",info[1]));
     ui->label_avatar_friend->setPixmap(avatar);
     ui->pushButton_send->setEnabled(true);
     show_messages();
@@ -196,7 +191,11 @@ void UserMainWindow::on_pushButton_search_clicked()
         warning.exec();
     }
     else {
-        session->search_user(ui->lineEdit_usersearchinput->text());
+        if(ui->lineEdit_usersearchinput->text()==session->info.value("email")) {
+            QMessageBox warning(QMessageBox::Warning,"Error","You can't add yourself to contact!",QMessageBox::Ok,this);
+            warning.exec();
+        }
+        else session->search_user(ui->lineEdit_usersearchinput->text());
     }
     ui->lineEdit_usersearchinput->clear();
 }
@@ -209,8 +208,8 @@ void UserMainWindow::show_messages()
     msg=session->get_messages_by_email(email);
     ui->listWidget_messages->clear();
     for(auto &i:msg) {
-        ui->listWidget_messages->addItem(i.time+" - "+i.sender+"\n"+i.msg);
-
+        ui->listWidget_messages->addItem(i.time+" - "+i.sender);
+        ui->listWidget_messages->addItem(i.msg);
     }
     ui->listWidget_messages->scrollToBottom();
 }
@@ -225,7 +224,7 @@ bool UserMainWindow::eventFilter(QObject *object, QEvent *event)
                 return true;
             }
             if(peve->key()==Qt::Key_Return || peve->key()==Qt::Key_Enter) {
-                on_pushButton_send_clicked();
+                if(ui->pushButton_send->isEnabled()) on_pushButton_send_clicked();
                 return true;
             }
         }

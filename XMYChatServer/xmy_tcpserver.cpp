@@ -57,14 +57,15 @@ XMY_tcpserver::~XMY_tcpserver()
 
 void XMY_tcpserver::incomingConnection(qintptr socketDescriptor)
 {
-    XMY_tcpsocket* socket=new XMY_tcpsocket(socketDescriptor);
-    clients.insert(socketDescriptor,socket);
+    QUuid socketId=QUuid().createUuid();
+    XMY_tcpsocket* socket=new XMY_tcpsocket(socketDescriptor,socketId);
+    clients.insert(socketId,socket);
     connect(socket,&XMY_tcpsocket::receive_json,this,&XMY_tcpserver::request_process);
     connect(socket,&XMY_tcpsocket::disconnected,this,&XMY_tcpserver::slot_disconnected);
-    emit new_log(QString("New connection from [%1]:%2 %3.").arg(socket->peerAddress().toString()).arg(socket->peerPort()).arg(socketDescriptor));
+    emit new_log(QString("New connection from [%1]:%2 %3.").arg(socket->peerAddress().toString()).arg(socket->peerPort()).arg(socketId.toString()));
 }
 
-void XMY_tcpserver::user_authentication(QJsonObject login_info, QJsonObject& ret_data, qintptr socketDescriptor)
+void XMY_tcpserver::user_authentication(QJsonObject login_info, QJsonObject& ret_data, QUuid socketId)
 {
     QString email=login_info.value("email").toString();
     if(!XMY_Utilities::check_valid_email(email)) {
@@ -84,7 +85,7 @@ void XMY_tcpserver::user_authentication(QJsonObject login_info, QJsonObject& ret
             else {
                 result=LOGIN_SUCCESS;
                 if(loginusers.contains(email) && clients.contains(loginusers.value(email))) clients.value(loginusers.value(email))->disconnectFromHost();
-                loginusers.insert(login_info.value("email").toString(),socketDescriptor);
+                loginusers.insert(login_info.value("email").toString(),socketId);
             }
         }
         else result=LOGIN_INFO_ERROR;
@@ -250,7 +251,7 @@ void XMY_tcpserver::request_process(QJsonObject req)
     switch(req.value("type").toInt()){
     case TYPE_LOGIN: {
         ret.insert("type",TYPE_LOGIN);
-        user_authentication(req,ret,socket->socketDescriptor());
+        user_authentication(req,ret,socket->id);
         break;
     }
     case TYPE_REGISTER: {
@@ -349,7 +350,7 @@ void XMY_tcpserver::handleEndOfRequest(QNetworkReply *reply)
 void XMY_tcpserver::slot_disconnected()
 {
     XMY_tcpsocket* client=qobject_cast<XMY_tcpsocket*>(sender());
-    emit new_log(QString("[%1]:%2 %3 disconnected.").arg(client->peerAddress().toString()).arg(client->peerPort()).arg(client->id));
+    emit new_log(QString("[%1]:%2 %3 disconnected.").arg(client->peerAddress().toString()).arg(client->peerPort()).arg(client->id.toString()));
     clients.remove(client->id);
     client->deleteLater();
 }

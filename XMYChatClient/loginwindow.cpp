@@ -19,7 +19,6 @@ LoginWindow::LoginWindow(QWidget *parent)
     QVariant ip, port;
     if(!settings->get_value("Server ip", ip)) settings->set_value("Server ip","127.0.0.1");
     if(!settings->get_value("Server port", port)) settings->set_value("Server port",42000);
-
 }
 
 LoginWindow::~LoginWindow()

@@ -11,9 +11,9 @@ class XMY_tcpsocket : public QTcpSocket
     Q_OBJECT
 public:
     explicit XMY_tcpsocket(QObject *parent = nullptr);
-    XMY_tcpsocket(qintptr socketDescriptor);
+    XMY_tcpsocket(qintptr socketDescriptor, QUuid socketId);
     void send_json(QJsonObject data);
-    qintptr id;
+    QUuid id;
 
 signals:
     void receive_json(QJsonObject data);

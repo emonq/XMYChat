@@ -164,7 +164,14 @@
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
-        <widget class="QListWidget" name="listWidget_messages"/>
+        <widget class="QListWidget" name="listWidget_messages">
+         <property name="textElideMode">
+          <enum>Qt::ElideNone</enum>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
         <widget class="QPlainTextEdit" name="plainTextEdit_msginput"/>
        </widget>
       </item>

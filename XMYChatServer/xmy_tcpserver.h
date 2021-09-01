@@ -29,10 +29,10 @@ signals:
 
 private:
     XMY_database* db;
-    QHash<qintptr,XMY_tcpsocket*> clients;
-    QHash<QString, qintptr> loginusers;
+    QHash<QUuid,XMY_tcpsocket*> clients;
+    QHash<QString, QUuid> loginusers;
 
-    void user_authentication(QJsonObject login_info, QJsonObject& ret_data, qintptr socketDescriptor);
+    void user_authentication(QJsonObject login_info, QJsonObject& ret_data, QUuid socketId);
     void user_create(QJsonObject user_info, QJsonObject& ret_data);
     bool send_message(QString from_username, QString to_username, QString msg);
     bool email_verify(QString email, int code, QJsonObject& ret_data);
