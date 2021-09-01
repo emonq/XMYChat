@@ -1,7 +1,7 @@
 #ifndef XMY_DATABASE_H
 #define XMY_DATABASE_H
 
-#define DB_FILE "test.db"
+#define DB_FILE "xmychat.db"
 
 #include "../XMYChatShare/xmy_basic.h"
 

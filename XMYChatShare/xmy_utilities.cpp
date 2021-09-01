@@ -27,7 +27,7 @@ bool XMY_Utilities::checkDir(QString path)
     if(dir.exists()) {
         return true;
     }
-    else return dir.mkpath(path);
+    else return QDir(".").mkpath(path);
 }
 
 void XMY_Utilities::save_pic_from_base64(QString base64, QString filename)

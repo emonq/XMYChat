@@ -36,7 +36,6 @@ bool XMY_database::init_db()
     QSqlQuery query;
     query.exec("DROP TABLE users");
     query.prepare("CREATE TABLE users(u_email TEXT PRIMARY KEY, u_password TEXT NOT NULL, u_username TEXT, is_banned INT DEFAULT 0, is_waiting_verification INT NOT NULL DEFAULT 1, u_verification_code INT, u_friends TEXT)");
-//    query.bindValue(":avatar",default_avatar);
     if(!query.exec()) {
         emit new_log(query.lastError().text());
         return false;
