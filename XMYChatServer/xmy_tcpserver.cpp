@@ -73,12 +73,12 @@ void XMY_tcpserver::user_authentication(QJsonObject login_info, QJsonObject& ret
     if(ret_code==RECORD_NOT_FOUND) result=LOGIN_USER_NOT_FOUND;
     else if(ret_code) result=ret_code;
     else {
-        if(res.value("u_password")==password) {
+        if(res.value("u_password").toString()==password) {
             if(res.value("is_banned").toInt()==1) result=LOGIN_USER_BANNED;
             else if(res.value("is_waiting_verification").toInt()==1) result=LOGIN_USER_WAITING_VERIFICATION;
             else {
                 result=LOGIN_SUCCESS;
-                if(loginusers.contains(login_info.value("email").toString())) clients.value(loginusers.value(login_info.value("email").toString()))->disconnectFromHost();
+//                if(loginusers.contains(login_info.value("email").toString())) clients.value(loginusers.value(login_info.value("email").toString()))->disconnectFromHost();
                 loginusers.insert(login_info.value("email").toString(),socketDescriptor);
             }
         }
@@ -263,9 +263,10 @@ void XMY_tcpserver::request_process(QJsonObject req)
             if(i=="avatar") XMY_Utilities::save_pic_from_base64(req.value(i).toString(),".avatar\\"+XMY_Utilities::emailtomd5(email)+".png");
             else if(i=="email") {
                 if(XMY_Utilities::check_valid_email(req.value(i).toString()))
-                    db->set_user_by_email(email,"u_email",req.value(i));
+                    db->set_user_by_email(email,"u_email",req.value(i).toString());
             }
             else if(i=="username") db->set_user_by_email(email,"u_username",req.value(i));
+            else if(i=="password") db->set_user_by_email(email,"u_password",req.value(i).toString().toUtf8().toBase64());
         }
         break;
     }
@@ -318,7 +319,7 @@ void XMY_tcpserver::request_process(QJsonObject req)
         return;
     }
     }
-    emit new_log(QJsonDocument(ret).toJson(QJsonDocument::Compact));
+    emit new_log(QString("To [%1]:%2 %3: ").arg(socket->peerAddress().toString()).arg(socket->peerPort()).arg(socket->socketDescriptor())+QJsonDocument(ret).toJson(QJsonDocument::Compact));
     socket->send_json(ret);
 }
 

@@ -34,6 +34,8 @@ UserMainWindow::UserMainWindow(QWidget *parent, loginsession* session) :
 
 UserMainWindow::~UserMainWindow()
 {
+    session->logout();
+    session->deleteLater();
     delete ui;
 }
 
@@ -122,7 +124,7 @@ void UserMainWindow::slot_user_found(userStruct user)
 
 void UserMainWindow::on_pushButton_logout_clicked()
 {
-    slot_logout();
+    session->logout();
 }
 
 void UserMainWindow::on_pushButton_editinfo_clicked()

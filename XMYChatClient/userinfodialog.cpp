@@ -12,6 +12,7 @@ UserInfoDialog::UserInfoDialog(QWidget *parent, QString username, QString email)
     ui->label_avatar->setPixmap(pic);
     ui->lineEdit_email->setText(email);
     ui->lineEdit_username->setText(username);
+    ui->lineEdit_password->setEchoMode(QLineEdit::Password);
 }
 
 UserInfoDialog::~UserInfoDialog()
@@ -22,6 +23,7 @@ UserInfoDialog::~UserInfoDialog()
 void UserInfoDialog::on_pushButton_select_avatar_clicked()
 {
     QString path=QFileDialog::getOpenFileName(this,"Choose a avatar file",".","Images (*.png)");
+    if(path.isEmpty()) return;
     QPixmap avatar(path);
     avatar.scaled(ui->label_avatar->size(), Qt::KeepAspectRatio);
     ui->label_avatar->setScaledContents(true);
