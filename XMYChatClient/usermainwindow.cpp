@@ -23,6 +23,9 @@ UserMainWindow::UserMainWindow(QWidget *parent, loginsession* session) :
         QMessageBox warning(QMessageBox::Warning,"Message send error","Your message is failed to send. It may because your friend is offline currently.",QMessageBox::Ok,this);
         warning.exec();
     });
+    connect(ui->lineEdit_usersearchinput,&QLineEdit::returnPressed,this,[=](){
+        ui->pushButton_search->click();
+    });
     session->get_user_info();
     ui->pushButton_send->setEnabled(false);
 //    session->fetch_friend_list();
@@ -69,6 +72,7 @@ void UserMainWindow::slot_info_refresh()
 
 void UserMainWindow::slot_friend_list_refreshed()
 {
+    session->friend_item.clear();
     ui->listWidget_friends->clear();
     for(auto &i:session->friends) {
         QListWidgetItem *item=new QListWidgetItem(ui->listWidget_friends);
@@ -78,7 +82,8 @@ void UserMainWindow::slot_friend_list_refreshed()
         session->friend_item[i.email]=item;
         ui->listWidget_friends->addItem(item);
     }
-    ui->label_friends->setText(QString("%1 friends:").arg(session->friends.count()));
+    if(!session->friend_email_list.contains(ui->label_email_friend->text())) clear_friend_info();
+    ui->label_friends->setText(QString("%1 friends:").arg(session->friend_item.count()));
 }
 
 void UserMainWindow::slot_avatar_got(QString email)
@@ -99,13 +104,13 @@ void UserMainWindow::slot_user_found(userStruct user)
     session->get_avatar(user.email,user.avatarmd5);
     if(dialog.exec()==QDialog::Accepted) {
         if(!session->friend_email_list.contains(user.email)){
+            session->add_user(user.email);
             QListWidgetItem* item=new QListWidgetItem(ui->listWidget_friends);
             item->setIcon(QPixmap(XMY_Utilities::get_avatar_filename(".cache\\",user.email)));
             item->setText(user.username+'\n'+user.email);
             session->friend_email_list.append(user.email);
             session->friends.append(user);
             session->friend_item.insert(user.email,item);
-            session->add_user(user.email);
             slot_friend_list_refreshed();
         }
         else {
@@ -150,6 +155,14 @@ void UserMainWindow::fill_user_info()
     setWindowTitle(session->info["email"]);
 }
 
+void UserMainWindow::clear_friend_info()
+{
+    ui->label_avatar_friend->clear();
+    ui->label_email_friend->clear();
+    ui->label_username_friend->clear();
+    ui->listWidget_messages->clear();
+}
+
 void UserMainWindow::on_listWidget_friends_itemClicked(QListWidgetItem *item)
 {
     item->setBackground(QColor("white"));
@@ -189,3 +202,40 @@ void UserMainWindow::show_messages()
     ui->listWidget_messages->scrollToBottom();
 }
 
+
+void UserMainWindow::on_listWidget_friends_customContextMenuRequested(const QPoint &pos)
+{
+    QListWidgetItem *curItem = ui->listWidget_friends->itemAt(pos);
+        if (curItem == NULL)
+            return;
+
+        QMenu *popMenu = new QMenu(this);
+        QAction *deleteSeed = new QAction(tr("Delete"), this);
+        popMenu->addAction(deleteSeed);
+        connect(deleteSeed, SIGNAL(triggered()), this, SLOT(deleteSeedSlot()));
+        popMenu->exec(QCursor::pos());
+        delete popMenu;
+        delete deleteSeed;
+}
+void UserMainWindow::deleteSeedSlot()
+{
+    QListWidgetItem *item = ui->listWidget_friends->currentItem();
+    if (item == NULL)
+        return;
+    QString email = item->text(); //好友邮箱
+    email = email.split('\n')[1];
+    int ch = QMessageBox::warning(NULL, "Warning",
+                                  tr("Are you sure to delete %1?").arg(email),
+                                  QMessageBox::Yes | QMessageBox::No,
+                                  QMessageBox::No);
+
+    if (ch != QMessageBox::Yes)
+        return;
+    if(ui->label_email_friend->text()==email) {
+        clear_friend_info();
+    }
+    session->delete_user(email);
+    int curIndex = ui->listWidget_friends->row(item);
+    ui->listWidget_friends->takeItem(curIndex);
+    delete item;
+}

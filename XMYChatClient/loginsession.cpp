@@ -198,6 +198,8 @@ void loginsession::callback_process(QJsonObject data)
     }
     case TYPE_FETCH_FRIEND_LIST: {
         qDebug()<<"Fetched "<<data.value("count").toInt()<<" friends";
+        friend_email_list.clear();
+        friends.clear();
         for(auto i:data.value("list").toArray()) {
             friend_email_list.append(i.toObject().value("email").toString());
             friends.append(userStruct(i.toObject().value("username").toString(),i.toObject().value("email").toString(),i.toObject().value("avatarmd5").toString()));

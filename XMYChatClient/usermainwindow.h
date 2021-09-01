@@ -34,11 +34,15 @@ private slots:
     void on_pushButton_search_clicked();
     void show_messages();
 
+    void on_listWidget_friends_customContextMenuRequested(const QPoint &pos);
+    void deleteSeedSlot();
+
 private:
     Ui::UserMainWindow *ui;
     loginsession* session;
 
     void fill_user_info();
+    void clear_friend_info();
 };
 
 #endif // USERMAINWINDOW_H

@@ -9,7 +9,7 @@ ClientDatabase::ClientDatabase(QObject *parent, QString email) : QObject(parent)
 
 bool ClientDatabase::connect_db()
 {
-    db.setDatabaseName(email+".db");
+    db.setDatabaseName(XMY_Utilities::emailtomd5(email)+".db");
     if(!db.open()) {
         qDebug()<<db.lastError().text();
         return false;

@@ -78,6 +78,7 @@ void XMY_tcpserver::user_authentication(QJsonObject login_info, QJsonObject& ret
             else if(res.value("is_waiting_verification").toInt()==1) result=LOGIN_USER_WAITING_VERIFICATION;
             else {
                 result=LOGIN_SUCCESS;
+                if(loginusers.contains(login_info.value("email").toString())) clients.value(loginusers.value(login_info.value("email").toString()))->disconnectFromHost();
                 loginusers.insert(login_info.value("email").toString(),socketDescriptor);
             }
         }
@@ -211,9 +212,19 @@ void XMY_tcpserver::delete_friend(QString email1, QString email2)
 {
     QMap<QString, QVariant> info;
     db->get_user_by_email(email1,info,"u_friends");
-    QString friend_list=info.value("u_friends").toString();
-    friend_list.remove(email2+';');
-    db->set_user_by_email(email1,"u_friends",friend_list);
+    QStringList friend_list=info.value("u_friends").toString().split(';',Qt::SkipEmptyParts);
+    friend_list.remove(friend_list.indexOf(email2));
+    db->set_user_by_email(email1,"u_friends",friend_list.join(';')+';');
+}
+
+void XMY_tcpserver::update_friend_list(QString email)
+{
+    XMY_tcpsocket* socket=clients.value(loginusers.value(email));
+    if(socket==NULL) return;
+    QJsonObject data;
+    data.insert("type",TYPE_FETCH_FRIEND_LIST);
+    fetch_friend_list(email,data);
+    socket->send_json(data);
 }
 
 void XMY_tcpserver::request_process(QJsonObject req)
@@ -292,11 +303,15 @@ void XMY_tcpserver::request_process(QJsonObject req)
     case TYPE_ADD_FRIEND: {
         add_friend(req.value("email1").toString(),req.value("email2").toString());
         add_friend(req.value("email2").toString(),req.value("email1").toString());
+        update_friend_list(req.value("email1").toString());
+        update_friend_list(req.value("email2").toString());
         break;
     }
     case TYPE_DELETE_FRIEND: {
         delete_friend(req.value("email1").toString(),req.value("email2").toString());
         delete_friend(req.value("email2").toString(),req.value("email1").toString());
+        update_friend_list(req.value("email1").toString());
+        update_friend_list(req.value("email2").toString());
         break;
     }
     default: {

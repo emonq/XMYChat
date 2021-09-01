@@ -42,6 +42,7 @@ private:
     void search_user(QString email, QJsonObject& ret);
     void add_friend(QString email1, QString email2);
     void delete_friend(QString email1, QString email2);
+    void update_friend_list(QString email);
 
 private slots:
     void slot_disconnected();
