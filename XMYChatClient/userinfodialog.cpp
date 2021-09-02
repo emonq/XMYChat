@@ -15,6 +15,7 @@ UserInfoDialog::UserInfoDialog(QWidget *parent, QString username, QString email)
     ui->lineEdit_email->setText(email);
     ui->lineEdit_username->setText(username);
     ui->lineEdit_password->setEchoMode(QLineEdit::Password);
+    ui->lineEdit_email->setEnabled(false);
 }
 
 UserInfoDialog::~UserInfoDialog()
