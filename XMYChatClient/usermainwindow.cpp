@@ -69,7 +69,8 @@ void UserMainWindow::on_pushButton_send_clicked()
     QString msg=ui->plainTextEdit_msginput->toPlainText();
     session->send_message(to_email,msg);
     ui->plainTextEdit_msginput->clear();
-    ui->listWidget_messages->addItem(XMY_Utilities::get_time_string()+" - "+session->info.value("email")+"\n"+msg);
+    ui->listWidget_messages->addItem(XMY_Utilities::get_time_string()+" - "+session->info.value("email"));
+    ui->listWidget_messages->addItem(msg);
     ui->listWidget_messages->scrollToBottom();
 }
 
